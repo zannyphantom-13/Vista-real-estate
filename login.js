@@ -15,6 +15,10 @@ const toggleBtn = document.getElementById('toggleBtn');
 const toggleText = document.getElementById('toggleText');
 const resendContainer = document.getElementById('resendContainer');
 const resendBtn = document.getElementById('resendBtn');
+const signupFields = document.getElementById('signupFields');
+const fullNameInput = document.getElementById('fullName');
+const phoneInput = document.getElementById('phone');
+const roleSelect = document.getElementById('role');
 
 // Auth State Observer - Redirect to admin if already logged in and verified
 auth.onAuthStateChanged(user => {
@@ -28,12 +32,14 @@ toggleBtn.addEventListener('click', () => {
     isSignUpMode = !isSignUpMode;
     resendContainer.style.display = 'none';
     if (isSignUpMode) {
+        signupFields.style.display = 'block';
         authTitle.textContent = 'Create Account';
         authSubtitle.textContent = 'Join Vista to list properties and manage saves.';
         submitBtn.textContent = 'Sign Up';
         toggleText.textContent = 'Already have an account?';
         toggleBtn.textContent = 'Sign In';
     } else {
+        signupFields.style.display = 'none';
         authTitle.textContent = 'Welcome Back';
         authSubtitle.textContent = 'Sign in to list properties or save homes.';
         submitBtn.textContent = 'Sign In';
@@ -55,7 +61,30 @@ authForm.addEventListener('submit', async (e) => {
     try {
         if (isSignUpMode) {
             // SIGN UP
+            const fullName = fullNameInput.value.trim();
+            const phone = phoneInput.value.trim();
+            const role = roleSelect.value;
+            
+            if (!fullName) {
+                showToast('Please enter your full name.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                return;
+            }
+
             const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            
+            // Save extra info
+            await userCredential.user.updateProfile({ displayName: fullName });
+            
+            await db.collection('users').doc(userCredential.user.uid).set({
+                fullName,
+                phone,
+                role,
+                email,
+                createdAt: new Date().toISOString()
+            });
+
             await userCredential.user.sendEmailVerification();
             showToast('Account created! Please check your email for the verification link.', 'success');
             await auth.signOut(); // Force them to verify before they can truly log in
@@ -64,6 +93,8 @@ authForm.addEventListener('submit', async (e) => {
             toggleBtn.click();
             emailInput.value = '';
             passwordInput.value = '';
+            fullNameInput.value = '';
+            phoneInput.value = '';
         } else {
             // SIGN IN
             const userCredential = await auth.signInWithEmailAndPassword(email, password);
