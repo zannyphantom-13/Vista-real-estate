@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Find your dream home with Vista Real Estate. Browse modern apartments, houses, and luxury villas."/>
+  <title>Vista | Real Estate Listings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+  <!-- Phosphor Icons for modern UI icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <a href="#" class="logo">
+        <i class="ph ph-house-line"></i> Vista
+      </a>
+      <ul class="nav-links">
+        <li><a href="#" class="active">Buy</a></li>
+        <li><a href="#">Rent</a></li>
+        <li><a href="#">Sell</a></li>
+        <li><a href="#">Agents</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="icon-btn" aria-label="Saved Homes"><i class="ph ph-heart"></i></button>
+        <a href="login.html" class="icon-btn" aria-label="User Account" id="userAccountBtn"><i class="ph ph-user"></i></a>
+        <a href="admin.html" class="btn btn-primary" id="listPropertyBtn">List Property</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- SEARCH HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="container hero-content">
+      <h1>Find a home you'll love.</h1>
+      <p>Search over 10,000+ properties for sale and rent in top neighborhoods.</p>
+      
+      <div class="search-box">
+        <div class="search-tabs">
+          <button class="search-tab active">Buy</button>
+          <button class="search-tab">Rent</button>
+          <button class="search-tab">Sold</button>
+        </div>
+        <form class="search-form" id="searchForm">
+          <div class="input-wrapper">
+            <i class="ph ph-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="Enter City, Neighborhood, or ZIP" autocomplete="off"/>
+          </div>
+          <button type="submit" class="btn btn-primary search-btn">Search</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content container grid-layout">
+    
+    <!-- SIDEBAR FILTERS -->
+    <aside class="filters-sidebar">
+      <div class="filter-header">
+        <h3>Filters</h3>
+        <button class="clear-btn" id="clearFiltersBtn">Clear All</button>
+      </div>
+      
+      <!-- Price Range -->
+      <div class="filter-group">
+        <h4>Price Range</h4>
+        <div class="price-inputs">
+          <input type="number" id="minPrice" placeholder="Min $" min="0" step="50000">
+          <span>-</span>
+          <input type="number" id="maxPrice" placeholder="Max $" min="0" step="50000">
+        </div>
+      </div>
+
+      <!-- Property Type -->
+      <div class="filter-group">
+        <h4>Property Type</h4>
+        <label class="checkbox-label">
+          <input type="checkbox" name="type" value="house"> House
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" name="type" value="apartment"> Apartment / Condo
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" name="type" value="townhouse"> Townhouse
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" name="type" value="villa"> Luxury Villa
+        </label>
+      </div>
+
+      <!-- Beds & Baths -->
+      <div class="filter-group">
+        <h4>Rooms</h4>
+        <div class="select-wrapper">
+          <select id="bedsFilter">
+            <option value="any">Any Beds</option>
+            <option value="1">1+ Beds</option>
+            <option value="2">2+ Beds</option>
+            <option value="3">3+ Beds</option>
+            <option value="4">4+ Beds</option>
+          </select>
+          <i class="ph ph-caret-down"></i>
+        </div>
+        <div class="select-wrapper" style="margin-top: 10px;">
+          <select id="bathsFilter">
+            <option value="any">Any Baths</option>
+            <option value="1">1+ Baths</option>
+            <option value="2">2+ Baths</option>
+            <option value="3">3+ Baths</option>
+          </select>
+          <i class="ph ph-caret-down"></i>
+        </div>
+      </div>
+
+      <button class="btn btn-primary w-full" id="applyFiltersBtn">Apply Filters</button>
+    </aside>
+
+    <!-- LISTINGS GRID -->
+    <div class="listings-area">
+      <div class="listings-header">
+        <h2 id="resultsCount">Loading...</h2>
+        <div class="sort-by select-wrapper">
+          <select id="sortFilter">
+            <option value="newest">Newest Listings</option>
+            <option value="price-low">Price (Low to High)</option>
+            <option value="price-high">Price (High to Low)</option>
+          </select>
+          <i class="ph ph-caret-down"></i>
+        </div>
+      </div>
+
+      <!-- Active Filter Tags -->
+      <div class="active-filters" id="activeFilters">
+        <!-- Tags injected by JS -->
+      </div>
+
+      <!-- Listings Grid injected by JS -->
+      <div class="grid" id="listingsGrid">
+        <!-- JS inserts listing-cards here -->
+      </div>
+      
+      <div class="pagination">
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">Next <i class="ph ph-arrow-right"></i></button>
+      </div>
+    </div>
+  </main>
+
+  <!-- CTA SECTION -->
+  <section class="cta-section">
+    <div class="container cta-inner">
+      <div class="cta-text">
+        <h2>Ready to sell your home?</h2>
+        <p>Get a free estimated value based on recent local sales and market trends.</p>
+      </div>
+      <div class="cta-form">
+        <input type="text" placeholder="Enter your home address...">
+        <button class="btn btn-secondary">Get Estimate</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-col brand">
+        <a href="#" class="logo"><i class="ph ph-house-line"></i> Vista</a>
+        <p>The modern way to buy, sell, and rent real estate across the country.</p>
+        <div class="socials">
+          <a href="#"><i class="ph ph-facebook-logo"></i></a>
+          <a href="#"><i class="ph ph-twitter-logo"></i></a>
+          <a href="#"><i class="ph ph-instagram-logo"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#">About Us</a>
+        <a href="#">Careers</a>
+        <a href="#">Press</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h4>Discover</h4>
+        <a href="#">Buy a home</a>
+        <a href="#">Rent a home</a>
+        <a href="#">Sell a home</a>
+        <a href="#">Neighborhood Guides</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookie Policy</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <p>&copy; 2024 Vista Real Estate. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="toast.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

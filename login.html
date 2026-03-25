@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vista | Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body class="auth-page">
+
+  <!-- NAVBAR (Minimal) -->
+  <nav class="navbar">
+    <div class="container nav-inner" style="justify-content: center;">
+      <a href="index.html" class="logo">
+        <i class="ph ph-house-line"></i> Vista
+      </a>
+    </div>
+  </nav>
+
+  <!-- AUTH CONTAINER -->
+  <main class="auth-container">
+    <div class="auth-card">
+      <h2 id="authTitle">Welcome Back</h2>
+      <p id="authSubtitle">Sign in to list properties or save homes.</p>
+      
+      <form id="authForm" class="auth-form">
+        <div class="input-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" required placeholder="you@example.com">
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" required placeholder="••••••••">
+        </div>
+        
+        <button type="submit" class="btn btn-primary w-full" id="submitBtn">Sign In</button>
+      </form>
+      
+      <div id="resendContainer" style="display: none; margin-top: 16px; text-align: center;">
+        <button id="resendBtn" class="clear-btn">Resend Verification Email</button>
+      </div>
+
+      <div class="auth-footer">
+        <span id="toggleText">Don't have an account?</span>
+        <button id="toggleBtn" class="clear-btn">Sign Up</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-storage-compat.js"></script>
+  
+  <script src="firebase-config.js"></script>
+  <script src="toast.js"></script>
+  <script src="login.js"></script>
+</body>
+</html>
