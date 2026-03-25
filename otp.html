@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vista | Two-Step Verification</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    .otp-inputs {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .otp-input {
+      width: 48px;
+      height: 56px;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+      transition: var(--transition);
+    }
+    .otp-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+  </style>
+</head>
+<body class="auth-page">
+  <nav class="navbar">
+    <div class="container nav-inner" style="justify-content: center;">
+      <a href="index.html" class="logo">
+        <i class="ph ph-house-line"></i> Vista
+      </a>
+    </div>
+  </nav>
+
+  <main class="auth-container">
+    <div class="auth-card" style="text-align: center;">
+      <div style="width: 64px; height: 64px; background: #e0e7ff; color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 20px;">
+        <i class="ph ph-shield-check"></i>
+      </div>
+      <h2>Verify your account</h2>
+      <p>We've sent a 6-digit secure OTP code to your device. Please enter it below to confirm your identity.</p>
+      
+      <form id="otpForm" class="auth-form" style="text-align: left;">
+        <div class="otp-inputs" id="otpContainer">
+          <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required autofocus>
+          <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary w-full" id="submitBtn">Verify Code</button>
+      </form>
+
+      <div class="auth-footer" style="margin-top: 24px;">
+        <span>Didn't receive a code?</span>
+        <button type="button" class="clear-btn" onclick="window.location.href='login.html'">Back to Login to Resend</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="toast.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const uid = params.get('uid');
+
+    if (!uid) {
+        showToast('Invalid verification session. Please log in again.', 'error');
+        setTimeout(() => window.location.href = 'login.html', 2000);
+    }
+  
+    // OTP Input Auto-Focus Logic
+    const inputs = document.querySelectorAll('.otp-input');
+    inputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+            if (e.target.value.length === 1 && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+        });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                inputs[index - 1].focus();
+            }
+        });
+    });
+
+    const submitBtn = document.getElementById('submitBtn');
+
+    document.getElementById('otpForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!uid) return;
+
+        let code = '';
+        inputs.forEach(input => code += input.value);
+        
+        if(code.length !== 6) {
+            showToast('Please enter a valid 6-digit code.', 'error');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Verifying...';
+
+        try {
+            const userRef = db.collection('users').doc(uid);
+            const userDoc = await userRef.get();
+
+            if (userDoc.exists) {
+                if (userDoc.data().otpCode === code) {
+                    await userRef.update({ emailVerified: true, otpCode: null });
+                    showToast('Verified! You can now log in.', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1500);
+                } else {
+                    showToast('Incorrect verification code. Please try again.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Verify Code';
+                }
+            } else {
+                showToast('Verification session expired.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Verify Code';
+            }
+        } catch (error) {
+            showToast('Verification failed: ' + error.message, 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Verify Code';
+        }
+    });
+  </script>
+</body>
+</html>

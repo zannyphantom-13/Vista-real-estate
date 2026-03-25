@@ -107,6 +107,13 @@ function renderListings() {
   filtered.forEach(p => {
     const card = document.createElement('div');
     card.className = 'listing-card';
+    card.style.cursor = 'pointer';
+    card.onclick = (e) => {
+        // Prevent clicking the heart icon from triggering the redirect
+        if(!e.target.closest('.card-fav')) {
+            window.location.href = `property.html?id=${p.id}`;
+        }
+    };
     card.innerHTML = `
       <div class="card-img-wrap">
         <img src="${p.image}" alt="${p.title}" loading="lazy"/>

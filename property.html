@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vista | Property Details</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    .property-hero {
+      width: 100%;
+      height: 60vh;
+      min-height: 400px;
+      object-fit: cover;
+      background-color: var(--border);
+    }
+    .details-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 40px;
+      padding: 40px 20px;
+    }
+    .prop-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 8px;
+    }
+    .prop-address {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .prop-price {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 32px;
+      font-family: 'Montserrat', sans-serif;
+    }
+    .prop-stats {
+      display: flex;
+      gap: 32px;
+      padding: 24px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 32px;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .contact-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      position: sticky;
+      top: 96px;
+      box-shadow: var(--shadow-sm);
+    }
+    @media (max-width: 768px) {
+      .details-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <a href="index.html" class="logo">
+        <i class="ph ph-house-line"></i> Vista
+      </a>
+      <div class="nav-actions">
+        <a href="index.html" class="btn btn-secondary">Back to Search</a>
+      </div>
+    </div>
+  </nav>
+
+  <img id="propImage" class="property-hero" src="" alt="Property Hero Image" />
+
+  <main class="container details-grid">
+    <div class="prop-info" id="propInfo" style="display: none;">
+      <div class="prop-header">
+        <div style="display: flex; gap: 8px; margin-bottom: 16px;" id="propBadges"></div>
+        <h1 id="propTitle">Loading...</h1>
+        <p class="prop-address"><i class="ph ph-map-pin"></i> <span id="propAddress"></span></p>
+        <div class="prop-price" id="propPrice"></div>
+      </div>
+
+      <div class="prop-stats">
+        <div class="stat-item">
+          <span class="stat-value"><i class="ph ph-bed"></i> <span id="propBeds"></span></span>
+          <span class="stat-label">Bedrooms</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value"><i class="ph ph-shower"></i> <span id="propBaths"></span></span>
+          <span class="stat-label">Bathrooms</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value"><i class="ph ph-squares-four"></i> <span id="propSqft"></span></span>
+          <span class="stat-label">Square Feet</span>
+        </div>
+      </div>
+
+      <h2>About this home</h2>
+      <p style="color: var(--text-main); line-height: 1.7; margin-top: 16px;">
+        This beautiful property offers a luxurious lifestyle in a highly sought-after neighborhood. Featuring expansive living spaces, modern appliances, and stunning architectural details, it is the perfect place to call home. Schedule a tour today to experience everything this home has to offer.
+      </p>
+    </div>
+
+    <aside class="contact-sidebar">
+      <div class="contact-card">
+        <h3 style="margin-bottom: 24px; font-size: 1.25rem;">Contact Agent</h3>
+        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+          <img id="agentImg" src="" alt="Agent" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover;">
+          <div>
+            <h4 style="font-size: 1.1rem;" id="agentName">Vista Agent</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Listing Agent</p>
+          </div>
+        </div>
+        
+        <form class="auth-form" id="contactAgentForm">
+          <input type="hidden" name="property_title" id="hiddenPropTitle">
+          <input type="hidden" name="property_url" id="hiddenPropUrl">
+          <div class="input-group" style="margin-bottom: 16px;">
+            <input type="text" name="user_name" placeholder="Your Name" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;">
+          </div>
+          <div class="input-group" style="margin-bottom: 16px;">
+            <input type="email" name="user_email" placeholder="Your Email" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;">
+          </div>
+          <div class="input-group" style="margin-bottom: 16px;">
+            <textarea name="message" placeholder="I am interested in this property..." rows="4" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; resize: vertical;"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary w-full" id="contactSubmitBtn">Request Tour / Info</button>
+        </form>
+      </div>
+    </aside>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script type="text/javascript">
+    (function(){
+      emailjs.init({ publicKey: "eNCCmSZlHFbn4cJ97" });
+    })();
+  </script>
+  <script src="firebase-config.js"></script>
+  <script src="toast.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    if (!id) {
+        document.body.innerHTML = '<div style="text-align:center; padding: 100px;"><h2>Property Not Found</h2><a href="index.html" class="btn btn-primary">Go Back</a></div>';
+    } else {
+        db.collection('properties').doc(id).get().then(doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                
+                document.getElementById('propImage').src = data.image;
+                document.getElementById('propTitle').textContent = data.title;
+                document.getElementById('propAddress').textContent = data.address;
+                document.getElementById('propBeds').textContent = data.beds;
+                document.getElementById('propBaths').textContent = data.baths;
+                document.getElementById('propSqft').textContent = data.sqft.toLocaleString();
+                document.getElementById('agentImg').src = data.agent || `https://ui-avatars.com/api/?name=Agent&background=random`;
+                
+                let priceText = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(data.price);
+                if(data.status === 'rent') priceText += ' <span style="font-size: 1rem; color: var(--text-muted); font-weight: 400;">/mo</span>';
+                document.getElementById('propPrice').innerHTML = priceText;
+
+                let badges = `<span class="badge for-sale" style="padding: 6px 12px; font-size: 0.85rem; border-radius: 6px; background: var(--primary); color: white; display: inline-block;">For ${data.status.toUpperCase()}</span>`;
+                if(data.isNew) badges += `<span class="badge new" style="padding: 6px 12px; font-size: 0.85rem; border-radius: 6px; background: #e0e7ff; color: var(--primary); display: inline-block; margin-left:8px;">NEW CONSTRUCTION</span>`;
+                document.getElementById('propBadges').innerHTML = badges;
+
+                document.getElementById('propInfo').style.display = 'block';
+
+                // Fill hidden inputs for EmailJS mapping
+                document.getElementById('hiddenPropTitle').value = data.title;
+                document.getElementById('hiddenPropUrl').value = window.location.href;
+
+                // EmailJS Form Submit Handler
+                const contactForm = document.getElementById('contactAgentForm');
+                const contactSubmitBtn = document.getElementById('contactSubmitBtn');
+                
+                contactForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    contactSubmitBtn.textContent = 'Sending...';
+                    contactSubmitBtn.disabled = true;
+
+                    const SERVICE_ID = 'service_4zp6vha';
+                    // NOTE: You still need a Template ID for the Contact Agent email. 
+                    // Place it below!
+                    const TEMPLATE_ID = 'YOUR_CONTACT_AGENT_TEMPLATE_ID';
+
+                    emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, this)
+                        .then(() => {
+                            showToast('Message successfully sent to the agent!', 'success');
+                            contactForm.reset();
+                        }, (error) => {
+                            showToast('Failed to send message: ' + error.text, 'error');
+                        })
+                        .finally(() => {
+                            contactSubmitBtn.textContent = 'Request Tour / Info';
+                            contactSubmitBtn.disabled = false;
+                        });
+                });
+
+            } else {
+                showToast('Property not found in database.', 'error');
+            }
+        }).catch(err => {
+            showToast('Error loading property: ' + err.message, 'error');
+        });
+    }
+  </script>
+</body>
+</html>

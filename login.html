@@ -55,8 +55,16 @@
           <input type="email" id="email" required placeholder="you@example.com">
         </div>
         <div class="input-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" required placeholder="••••••••">
+          <label for="password" style="display: flex; justify-content: space-between;">
+            Password
+            <button type="button" id="forgotPasswordBtn" class="clear-btn" style="font-size: 0.8rem; font-weight: 500; color: var(--primary);">Forgot?</button>
+          </label>
+          <div style="position: relative;">
+            <input type="password" id="password" required placeholder="••••••••" style="padding-right: 48px;">
+            <button type="button" id="togglePasswordBtn" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.25rem; display: flex; cursor: pointer;">
+              <i class="ph ph-eye" id="togglePasswordIcon"></i>
+            </button>
+          </div>
         </div>
         
         <button type="submit" class="btn btn-primary w-full" id="submitBtn">Sign In</button>
@@ -78,6 +86,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-storage-compat.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script type="text/javascript">
+    (function(){
+      emailjs.init({ publicKey: "eNCCmSZlHFbn4cJ97" });
+    })();
+  </script>
   
   <script src="firebase-config.js"></script>
   <script src="toast.js"></script>
