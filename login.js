@@ -1,7 +1,7 @@
 // login.js
 
 let isSignUpMode = false;
-let pendingUser = null; // Store user while they complete the missing fields modal
+let pendingUser = null; 
 
 // DOM Elements
 const authTitle = document.getElementById('authTitle');
@@ -27,28 +27,12 @@ const modalPhone = document.getElementById('modalPhone');
 const modalRole = document.getElementById('modalRole');
 const modalSubmitBtn = document.getElementById('modalSubmitBtn');
 
-// Handle Full-Page Redirect Results (Google Auth)
-auth.getRedirectResult().then(async (result) => {
-    if (result && result.user) {
-        await handleSuccessfulAuth(result.user);
-    }
-}).catch(error => {
-    if (error.code !== 'auth/redirect-cancelled-by-user' && error.code !== 'auth/popup-closed-by-user') {
-        showToast('Google Sign-In caught an error: ' + error.message, 'error');
-    }
-});
-
-// Observer - Only let them through if their profile is complete
-auth.onAuthStateChanged(async user => {
-    if (user && !pendingUser) {
-        // Check if profile is complete
-        const userDoc = await db.collection('users').doc(user.uid).get();
-        if (userDoc.exists && userDoc.data().phone && userDoc.data().role) {
-            window.location.href = 'admin.html';
-        } else {
-            // Unfinished profile - trigger modal
-            pendingUser = user;
-            profileModal.style.display = 'flex';
+// Supabase Auth State Observer
+supabase.auth.onAuthStateChange(async (event, session) => {
+    // We only care about SIGNED_IN or INITIAL_SESSION events
+    if (session && session.user && !pendingUser) {
+        if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+            await handleSuccessfulAuth(session.user);
         }
     }
 });
@@ -94,7 +78,8 @@ forgotPasswordBtn.addEventListener('click', async () => {
         return;
     }
     try {
-        await auth.sendPasswordResetEmail(email);
+        const { error } = await supabase.auth.resetPasswordForEmail(email);
+        if(error) throw error;
         showToast('Password reset link sent! Check your inbox.', 'success');
     } catch (error) {
         showToast(error.message, 'error');
@@ -102,10 +87,10 @@ forgotPasswordBtn.addEventListener('click', async () => {
 });
 
 // Google Sign In
-googleBtn.addEventListener('click', () => {
+googleBtn.addEventListener('click', async () => {
     try {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithRedirect(provider);
+        const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+        if(error) throw error;
     } catch (error) {
         showToast('Google Sign-In Initialization Failed: ' + error.message, 'error');
     }
@@ -120,14 +105,15 @@ profileForm.addEventListener('submit', async (e) => {
     modalSubmitBtn.textContent = 'Saving...';
     
     try {
-        await db.collection('users').doc(pendingUser.uid).set({
+        const { error } = await supabase.from('users').upsert({
+            id: pendingUser.id,
             phone: modalPhone.value.trim(),
             role: modalRole.value,
-            // Fallbacks if they originally didn't have these
-            fullName: pendingUser.displayName || 'Vista User',
-            email: pendingUser.email,
-            createdAt: new Date().toISOString()
-        }, { merge: true });
+            full_name: pendingUser.user_metadata?.full_name || 'Vista User',
+            email: pendingUser.email
+        });
+        
+        if (error) throw error;
         
         showToast('Profile completed! Welcome to Vista.', 'success');
         setTimeout(() => {
@@ -143,22 +129,26 @@ profileForm.addEventListener('submit', async (e) => {
 // Handle Auth Success / Routing
 async function handleSuccessfulAuth(user, explicitData = null) {
     try {
-        const userDoc = await db.collection('users').doc(user.uid).get();
+        // Did they use the email form to explicitly provide sign up data just now?
+        if (explicitData) {
+            const { error: upsertError } = await supabase.from('users').upsert(explicitData);
+            if(upsertError) throw upsertError;
+            
+            showToast('Account created successfully!', 'success');
+            setTimeout(() => window.location.href = 'admin.html', 1000);
+            return;
+        }
+
+        // Fetch their public user profile
+        const { data: userDoc, error } = await supabase.from('users').select('*').eq('id', user.id).single();
         
-        if (!userDoc.exists || !userDoc.data().phone || !userDoc.data().role) {
-            // If they provided explicit data via Email Sign Up form, save it directly
-            if (explicitData) {
-                await db.collection('users').doc(user.uid).set(explicitData, { merge: true });
-                showToast('Account created successfully!', 'success');
-                setTimeout(() => window.location.href = 'admin.html', 1000);
-            } else {
-                // Otherwise (e.g. Google Auth), intercept and pop modal
-                pendingUser = user;
-                profileModal.style.display = 'flex';
-                showToast('Please complete your profile to continue.', 'info');
-            }
+        if (error || !userDoc || !userDoc.phone || !userDoc.role) {
+            // Unfinished profile -> Intercept and pop modal
+            pendingUser = user;
+            profileModal.style.display = 'flex';
+            showToast('Please complete your profile to continue.', 'info');
         } else {
-            // Exists and has fields
+            // Profile is fully complete
             showToast('Welcome back!', 'success');
             setTimeout(() => window.location.href = 'admin.html', 1000);
         }
@@ -189,23 +179,34 @@ authForm.addEventListener('submit', async (e) => {
                 return;
             }
 
-            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-            await userCredential.user.updateProfile({ displayName: fullName });
-            
-            // Go straight to handle profile setup & redirect (NO OTP!)
-            await handleSuccessfulAuth(userCredential.user, {
-                fullName, phone, role, email, createdAt: new Date().toISOString()
+            const { data, error } = await supabase.auth.signUp({ 
+                email, 
+                password,
+                options: { data: { full_name: fullName } }
             });
 
+            if (error) throw error;
+            
+            // Go straight to handle profile setup & redirect
+            if(data.user) {
+                await handleSuccessfulAuth(data.user, {
+                    id: data.user.id,
+                    full_name: fullName,
+                    phone: phone,
+                    role: role,
+                    email: email
+                });
+            }
+
         } else {
-            const userCredential = await auth.signInWithEmailAndPassword(email, password);
-            // Sign in successfully -> check if fields missing
-            await handleSuccessfulAuth(userCredential.user);
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) throw error;
+            // observer catches this
         }
     } catch (error) {
         let msg = error.message;
-        if (error.code === 'auth/email-already-in-use') msg = 'Email is already in use.';
-        if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') msg = 'Invalid email or password.';
+        if (error.status === 400 && error.message.includes('Invalid login')) msg = 'Invalid email or password.';
+        if (error.status === 422) msg = 'Password should be at least 6 characters.';
         showToast(msg, 'error');
     } finally {
         submitBtn.disabled = false;

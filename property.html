@@ -153,15 +153,15 @@
     </aside>
   </main>
 
-  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script type="text/javascript">
     (function(){
       emailjs.init({ publicKey: "eNCCmSZlHFbn4cJ97" });
     })();
   </script>
-  <script src="firebase-config.js"></script>
+  <script src="supabase-config.js"></script>
   <script src="toast.js"></script>
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -170,10 +170,8 @@
     if (!id) {
         document.body.innerHTML = '<div style="text-align:center; padding: 100px;"><h2>Property Not Found</h2><a href="index.html" class="btn btn-primary">Go Back</a></div>';
     } else {
-        db.collection('properties').doc(id).get().then(doc => {
-            if (doc.exists) {
-                const data = doc.data();
-                
+        supabase.from('properties').select('*').eq('id', id).single().then(({ data, error }) => {
+            if (data && !error) {
                 document.getElementById('propImage').src = data.image;
                 document.getElementById('propTitle').textContent = data.title;
                 document.getElementById('propAddress').textContent = data.address;

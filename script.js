@@ -265,19 +265,18 @@ sortFilter.addEventListener('change', (e) => {
 });
 
 // INIT & AUTH OBSERVER
+// INIT & AUTH OBSERVER
 const initApp = async () => {
     gridContainer.innerHTML = '<div style="grid-column: 1/-1; padding: 40px; text-align: center; color: var(--text-muted);">Loading listings...</div>';
     
     // Auth state changes
-    auth.onAuthStateChanged(user => {
+    supabase.auth.onAuthStateChange((event, session) => {
         const userBtn = document.getElementById('userAccountBtn');
         const listBtn = document.getElementById('listPropertyBtn');
-        if (user && userBtn) {
+        if (session && session.user && userBtn) {
             userBtn.innerHTML = '<i class="ph ph-user-check" style="color: var(--primary);"></i>';
-            if(user.emailVerified) {
-                userBtn.href = 'admin.html';
-                if(listBtn) listBtn.href = 'admin.html';
-            }
+            userBtn.href = 'admin.html';
+            if(listBtn) listBtn.href = 'admin.html';
         } else if (userBtn) {
             userBtn.innerHTML = '<i class="ph ph-user"></i>';
             userBtn.href = 'login.html';
@@ -286,17 +285,32 @@ const initApp = async () => {
     });
 
     try {
-        const snapshot = await db.collection('properties').get();
-        if(snapshot.empty) {
-            // Seed with some default data for demonstration if empty
+        const { data, error } = await supabase.from('properties').select('*');
+        if (error) throw error;
+        
+        if (!data || data.length === 0) {
             properties = [];
         } else {
-            properties = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            properties = data.map(doc => ({
+                id: doc.id,
+                title: doc.title,
+                address: doc.address,
+                price: doc.price,
+                beds: doc.beds,
+                baths: doc.baths,
+                sqft: doc.sqft,
+                type: doc.type,
+                status: doc.status,
+                isNew: doc.is_new,
+                image: doc.image,
+                agent: doc.agent_avatar || `https://ui-avatars.com/api/?name=Agent&background=random`,
+                date: doc.created_at
+            }));
         }
         renderListings();
     } catch (error) {
         console.error("Error fetching listings:", error);
-        gridContainer.innerHTML = '<div style="grid-column: 1/-1; padding: 40px; text-align: center; color: #ef4444;">Failed to load properties. Ensure Firebase config is set.</div>';
+        gridContainer.innerHTML = '<div style="grid-column: 1/-1; padding: 40px; text-align: center; color: #ef4444;">Failed to load properties. Ensure Supabase config is set.</div>';
     }
 };
 
