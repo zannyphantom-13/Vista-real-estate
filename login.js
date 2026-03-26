@@ -189,20 +189,37 @@ authForm.addEventListener('submit', async (e) => {
             const { data, error } = await supabase.auth.signUp({ 
                 email, 
                 password,
-                options: { data: { full_name: fullName } }
+                options: { 
+                    data: { full_name: fullName },
+                    emailRedirectTo: window.location.origin + '/login.html'
+                }
             });
 
             if (error) throw error;
             
-            // Go straight to handle profile setup & redirect
             if(data.user) {
-                await handleSuccessfulAuth(data.user, {
+                // Immediately save the real estate fields before they lose context
+                const { error: upsertError } = await supabase.from('users').upsert({
                     id: data.user.id,
                     full_name: fullName,
                     phone: phone,
                     role: role,
                     email: email
                 });
+                if(upsertError) throw upsertError;
+
+                // If Email Confirmations are forced ON, Supabase will intentionally NOT issue a session yet!
+                if (!data.session) {
+                    showToast('Success! Please closely check your email inbox to verify your account.', 'success');
+                    authForm.reset();
+                    document.getElementById('toggleBtn').click(); // Switch form to Sign In view visually
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                    return;
+                }
+
+                // If Confirmations are OFF, gracefully log them directly in
+                await handleSuccessfulAuth(data.user);
             }
 
         } else {
@@ -212,8 +229,12 @@ authForm.addEventListener('submit', async (e) => {
         }
     } catch (error) {
         let msg = error.message;
-        if (error.status === 400 && error.message.includes('Invalid login')) msg = 'Invalid email or password.';
-        if (error.status === 422) msg = 'Password should be at least 6 characters.';
+        if (error.status === 400 && error.message.includes('Invalid login')) {
+            msg = 'Invalid email or password.';
+        }
+        if (error.message.includes('Email not confirmed')) {
+            msg = 'Please check your email and click the confirmation link before signing in.';
+        }
         showToast(msg, 'error');
     } finally {
         submitBtn.disabled = false;
