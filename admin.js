@@ -3,13 +3,20 @@
 // PROTECTION
 const adminBody = document.getElementById('adminBody');
 
-auth.onAuthStateChanged(user => {
-    if (!user || !user.emailVerified) {
-        // Not logged in or not verified, redirect to login
+auth.onAuthStateChanged(async user => {
+    if (!user) {
         window.location.href = 'login.html';
     } else {
-        // Show the page
-        adminBody.style.display = 'block';
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        
+        if(!userDoc.exists || !userDoc.data().emailVerified) {
+            // Logged in but NOT verified via OTP, kick them out
+            await auth.signOut();
+            window.location.href = 'login.html';
+        } else {
+            // Show the page
+            adminBody.style.display = 'block';
+        }
     }
 });
 
