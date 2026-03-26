@@ -27,6 +27,17 @@ const modalPhone = document.getElementById('modalPhone');
 const modalRole = document.getElementById('modalRole');
 const modalSubmitBtn = document.getElementById('modalSubmitBtn');
 
+// Handle Full-Page Redirect Results (Google Auth)
+auth.getRedirectResult().then(async (result) => {
+    if (result && result.user) {
+        await handleSuccessfulAuth(result.user);
+    }
+}).catch(error => {
+    if (error.code !== 'auth/redirect-cancelled-by-user' && error.code !== 'auth/popup-closed-by-user') {
+        showToast('Google Sign-In caught an error: ' + error.message, 'error');
+    }
+});
+
 // Observer - Only let them through if their profile is complete
 auth.onAuthStateChanged(async user => {
     if (user && !pendingUser) {
@@ -91,13 +102,12 @@ forgotPasswordBtn.addEventListener('click', async () => {
 });
 
 // Google Sign In
-googleBtn.addEventListener('click', async () => {
+googleBtn.addEventListener('click', () => {
     try {
         const provider = new firebase.auth.GoogleAuthProvider();
-        const result = await auth.signInWithPopup(provider);
-        await handleSuccessfulAuth(result.user);
+        auth.signInWithRedirect(provider);
     } catch (error) {
-        showToast('Google Sign-In Failed: ' + error.message, 'error');
+        showToast('Google Sign-In Initialization Failed: ' + error.message, 'error');
     }
 });
 
