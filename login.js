@@ -249,13 +249,18 @@ authForm.addEventListener('submit', async (e) => {
                 pendingUserCache = data.user;
 
                 // Transmit physically
-                emailjs.send("service_4zp6vha", "template_tnpxirj", {
-                    user_name: fullName,
-                    user_email: email,
-                    property_title: "Account Verification",
-                    property_url: window.location.origin,
-                    message: `Welcome to Vista! Your 6-digit Account Verification Code is: ${generatedOtp}`
-                });
+                try {
+                    await emailjs.send("service_4zp6vha", "template_tnpxirj", {
+                        user_name: fullName,
+                        user_email: email,
+                        property_title: "Account Verification",
+                        property_url: window.location.origin,
+                        message: `Welcome to Vista! Your 6-digit Account Verification Code is: ${generatedOtp}`
+                    });
+                } catch(emailError) {
+                    blockAuthObserver = false;
+                    throw new Error("EmailJS Provider completely failed: " + (emailError.text || JSON.stringify(emailError)));
+                }
 
                 // Overhaul specific DOM structures dynamically
                 authForm.style.display = 'none';
