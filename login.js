@@ -2,6 +2,9 @@
 
 let isSignUpMode = false;
 let pendingUser = null; 
+let blockAuthObserver = false; // Natively blocks the global handler from aggressively bypassing manual OTP
+let generatedOtp = null;
+let pendingUserCache = null;
 
 // DOM Elements
 const authTitle = document.getElementById('authTitle');
@@ -29,11 +32,38 @@ const modalSubmitBtn = document.getElementById('modalSubmitBtn');
 
 // Supabase Auth State Observer
 supabase.auth.onAuthStateChange(async (event, session) => {
-    // We only care about SIGNED_IN or INITIAL_SESSION events
-    if (session && session.user && !pendingUser) {
+    // We heavily care about SIGNED_IN or INITIAL_SESSION events
+    if (session && session.user && !pendingUser && !blockAuthObserver) {
         if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
             await handleSuccessfulAuth(session.user);
         }
+    }
+});
+
+// Resend OTP manually triggered
+document.getElementById('resendOtpBtn')?.addEventListener('click', () => {
+    if(!pendingUserCache) return;
+    generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    emailjs.send("service_4zp6vha", "template_tnpxirj", {
+        user_name: pendingUserCache.user_metadata?.full_name || 'Vista User',
+        user_email: pendingUserCache.email,
+        property_title: "Account Verification Reset",
+        property_url: window.location.origin,
+        message: `Welcome back to Vista! Your new 6-digit Account Verification Code is: ${generatedOtp}`
+    });
+    showToast('A new code has been sent to your email.', 'success');
+});
+
+// Verify OTP payload locally
+document.getElementById('verifyOtpBtn')?.addEventListener('click', async () => {
+    const input = document.getElementById('otpInput').value.trim();
+    if(input === generatedOtp) {
+        showToast('Email verified successfully!', 'success');
+        blockAuthObserver = false; // Relinquish UI freeze flag
+        document.getElementById('otpSection').style.display = 'none';
+        await handleSuccessfulAuth(pendingUserCache);
+    } else {
+        showToast('Invalid confirmation code. Please check your email.', 'error');
     }
 });
 
@@ -186,16 +216,18 @@ authForm.addEventListener('submit', async (e) => {
                 return;
             }
 
+            blockAuthObserver = true;
+
             const { data, error } = await supabase.auth.signUp({ 
                 email, 
                 password,
-                options: { 
-                    data: { full_name: fullName },
-                    emailRedirectTo: window.location.origin + '/login.html'
-                }
+                options: { data: { full_name: fullName } } // Supabase magically handles basic creds
             });
 
-            if (error) throw error;
+            if (error) {
+                blockAuthObserver = false;
+                throw error;
+            }
             
             if(data.user) {
                 // Immediately save the real estate fields before they lose context
@@ -206,20 +238,44 @@ authForm.addEventListener('submit', async (e) => {
                     role: role,
                     email: email
                 });
-                if(upsertError) throw upsertError;
-
-                // If Email Confirmations are forced ON, Supabase will intentionally NOT issue a session yet!
-                if (!data.session) {
-                    showToast('Success! Please closely check your email inbox to verify your account.', 'success');
-                    authForm.reset();
-                    document.getElementById('toggleBtn').click(); // Switch form to Sign In view visually
-                    submitBtn.disabled = false;
-                    submitBtn.style.opacity = '1';
-                    return;
+                
+                if(upsertError) {
+                    blockAuthObserver = false;
+                    throw upsertError;
                 }
 
-                // If Confirmations are OFF, gracefully log them directly in
-                await handleSuccessfulAuth(data.user);
+                // Inject Custom EmailJS OTP System internally bypassing Magic Link rules
+                generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+                pendingUserCache = data.user;
+
+                // Transmit physically
+                emailjs.send("service_4zp6vha", "template_tnpxirj", {
+                    user_name: fullName,
+                    user_email: email,
+                    property_title: "Account Verification",
+                    property_url: window.location.origin,
+                    message: `Welcome to Vista! Your 6-digit Account Verification Code is: ${generatedOtp}`
+                });
+
+                // Overhaul specific DOM structures dynamically
+                authForm.style.display = 'none';
+                document.getElementById('googleBtn').style.display = 'none';
+                const separators = document.querySelectorAll('.auth-toggle, hr, span');
+                separators.forEach(el => {
+                    if(el.textContent.includes('OR CONTINUE') || el.classList.contains('auth-toggle')) {
+                        el.parentElement.style.display = 'none';
+                    }
+                });
+                const authFooter = document.querySelector('.auth-footer');
+                if(authFooter) authFooter.style.display = 'none';
+                
+                document.getElementById('otpSection').style.display = 'block';
+                document.getElementById('otpEmailDisplay').textContent = email;
+                
+                showToast('Success! Verification code sent to your email.', 'success');
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                return;
             }
 
         } else {

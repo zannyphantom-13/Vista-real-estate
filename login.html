@@ -85,6 +85,17 @@
         <button id="resendBtn" class="clear-btn">Resend Verification Email</button>
       </div>
 
+      <!-- OTP Verification section (hidden by default) for EmailJS Signup Flow -->
+      <div id="otpSection" style="display: none; text-align: center; margin-bottom: 24px;">
+          <h2 style="margin-bottom: 8px;">Verify Your Email</h2>
+          <p style="color: var(--text-muted); margin-bottom: 24px; font-size: 0.95rem;">We just sent a 6-digit code to <strong id="otpEmailDisplay" style="color: var(--text-dark);"></strong>.</p>
+          
+          <input type="text" id="otpInput" maxlength="6" placeholder="••••••" style="font-size: 2rem; letter-spacing: 12px; text-align: center; width: 100%; padding: 16px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 24px; font-weight: 700; color: var(--primary);">
+          
+          <button id="verifyOtpBtn" class="btn btn-primary w-full" style="padding: 14px;">Verify Code</button>
+          <button id="resendOtpBtn" class="btn btn-secondary w-full" style="margin-top: 12px; background: transparent; border: none; color: var(--text-muted); font-size: 0.9rem;">Didn't receive it? Resend Code</button>
+      </div>
+
       <div class="auth-footer">
         <span id="toggleText">Don't have an account?</span>
         <button id="toggleBtn" class="clear-btn">Sign Up</button>
