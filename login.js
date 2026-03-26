@@ -158,7 +158,9 @@ async function handleSuccessfulAuth(user, explicitData = null) {
             setTimeout(() => window.location.href = 'admin.html', 1000);
         }
     } catch (error) {
-        console.warn('Handling auth data error:', error);
+        console.error('Handling auth data error:', error);
+        alert('CRASH LOG: ' + (error.message || JSON.stringify(error)));
+        showToast('System Error: ' + error.message, 'error');
     }
 }
 
