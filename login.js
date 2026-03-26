@@ -259,7 +259,9 @@ authForm.addEventListener('submit', async (e) => {
                     });
                 } catch(emailError) {
                     blockAuthObserver = false;
-                    throw new Error("EmailJS Provider completely failed: " + (emailError.text || JSON.stringify(emailError)));
+                    const errorDetail = emailError.text || JSON.stringify(emailError) || emailError.message || "Unknown error";
+                    alert("🚨 EMAILJS FAILED TO SEND OTP 🚨\n\nYour OTP email could not physically send because EmailJS rejected the API request!\n\nDetailed Error: " + errorDetail + "\n\nIf the error says 'template_id is invalid', you MUST update line 253 in login.js with your real Template ID!");
+                    throw new Error("EmailJS Provider completely failed: " + errorDetail);
                 }
 
                 // Overhaul specific DOM structures dynamically
