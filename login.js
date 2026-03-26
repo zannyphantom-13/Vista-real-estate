@@ -89,7 +89,12 @@ forgotPasswordBtn.addEventListener('click', async () => {
 // Google Sign In
 googleBtn.addEventListener('click', async () => {
     try {
-        const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+        const { error } = await supabase.auth.signInWithOAuth({ 
+            provider: 'google',
+            options: {
+                redirectTo: window.location.origin + '/login.html'
+            }
+        });
         if(error) throw error;
     } catch (error) {
         showToast('Google Sign-In Initialization Failed: ' + error.message, 'error');
