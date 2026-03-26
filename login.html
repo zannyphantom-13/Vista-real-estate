@@ -50,6 +50,16 @@
           </div>
         </div>
 
+        <button id="googleBtn" type="button" class="btn btn-secondary w-full" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: center; gap: 10px; background: white; border: 1px solid var(--border); color: var(--text-dark);">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 20px;">
+          Continue with Google
+        </button>
+        
+        <div style="position: relative; text-align: center; margin-bottom: 24px;">
+          <hr style="border: none; border-top: 1px solid var(--border); position: absolute; top: 50%; left: 0; width: 100%; z-index: 0;">
+          <span style="background: white; padding: 0 12px; color: var(--text-muted); font-size: 0.85rem; position: relative; z-index: 1;">OR CONTINUE WITH EMAIL</span>
+        </div>
+
         <div class="input-group">
           <label for="email">Email</label>
           <input type="email" id="email" required placeholder="you@example.com">
@@ -80,6 +90,32 @@
       </div>
     </div>
   </main>
+
+  <!-- COMPLETE PROFILE MODAL -->
+  <div id="profileModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="auth-card" style="margin: 20px; box-shadow: var(--shadow-xl);">
+      <h2 style="font-size: 1.5rem; text-align: center;">Complete Your Profile</h2>
+      <p style="text-align: center; color: var(--text-muted); margin-bottom: 24px;">We just need a couple more details to set up your account.</p>
+      <form id="profileForm" class="auth-form">
+        <div class="input-group">
+          <label for="modalPhone">Phone Number</label>
+          <input type="tel" id="modalPhone" required placeholder="(555) 123-4567">
+        </div>
+        <div class="input-group">
+          <label for="modalRole">I am a...</label>
+          <div class="select-wrapper">
+            <select id="modalRole" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius);">
+              <option value="buyer">Home Buyer / Renter</option>
+              <option value="agent">Real Estate Agent</option>
+              <option value="seller">Home Seller</option>
+            </select>
+            <i class="ph ph-caret-down"></i>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary w-full" id="modalSubmitBtn" style="margin-top: 16px;">Save and Continue</button>
+      </form>
+    </div>
+  </div>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>

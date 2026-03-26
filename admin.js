@@ -9,8 +9,8 @@ auth.onAuthStateChanged(async user => {
     } else {
         const userDoc = await db.collection('users').doc(user.uid).get();
         
-        if(!userDoc.exists || !userDoc.data().emailVerified) {
-            // Logged in but NOT verified via OTP, kick them out
+        if(!userDoc.exists || !userDoc.data().role) {
+            // Logged in but profile is wildly incomplete, redirect to login to finish Profile
             await auth.signOut();
             window.location.href = 'login.html';
         } else {
