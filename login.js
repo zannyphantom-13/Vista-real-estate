@@ -2,9 +2,6 @@
 
 let isSignUpMode = false;
 let pendingUser = null; 
-let blockAuthObserver = false; // Natively blocks the global handler from aggressively bypassing manual OTP
-let generatedOtp = null;
-let pendingUserCache = null;
 
 // DOM Elements
 const authTitle = document.getElementById('authTitle');
@@ -32,38 +29,30 @@ const modalSubmitBtn = document.getElementById('modalSubmitBtn');
 
 // Supabase Auth State Observer
 supabase.auth.onAuthStateChange(async (event, session) => {
-    // We heavily care about SIGNED_IN or INITIAL_SESSION events
-    if (session && session.user && !pendingUser && !blockAuthObserver) {
+    // We essentially care strictly about SIGNED_IN or INITIAL_SESSION events
+    if (session && session.user && !pendingUser) {
         if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
             await handleSuccessfulAuth(session.user);
         }
     }
 });
 
-// Resend OTP manually triggered
-document.getElementById('resendOtpBtn')?.addEventListener('click', () => {
-    if(!pendingUserCache) return;
-    generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    emailjs.send("service_4zp6vha", "template_tnpxirj", {
-        user_name: pendingUserCache.user_metadata?.full_name || 'Vista User',
-        user_email: pendingUserCache.email,
-        property_title: "Account Verification Reset",
-        property_url: window.location.origin,
-        message: `Welcome back to Vista! Your new 6-digit Account Verification Code is: ${generatedOtp}`
+// Implement Native Forgot Password Link explicitly
+document.getElementById('forgotPasswordBtn')?.addEventListener('click', async () => {
+    const email = document.getElementById('email').value.trim();
+    if (!email) {
+        return showToast('Please type your email address physically into the Email box first!', 'error');
+    }
+    
+    // Explicitly command Supabase to emit the custom Recovery token physically to the inbox
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/reset-password.html'
     });
-    showToast('A new code has been sent to your email.', 'success');
-});
-
-// Verify OTP payload locally
-document.getElementById('verifyOtpBtn')?.addEventListener('click', async () => {
-    const input = document.getElementById('otpInput').value.trim();
-    if(input === generatedOtp) {
-        showToast('Email verified successfully!', 'success');
-        blockAuthObserver = false; // Relinquish UI freeze flag
-        document.getElementById('otpSection').style.display = 'none';
-        await handleSuccessfulAuth(pendingUserCache);
+    
+    if (error) {
+        showToast('System Reset failed: ' + error.message, 'error');
     } else {
-        showToast('Invalid confirmation code. Please check your email.', 'error');
+        showToast('Password reset link brutally deployed! Please flawlessly check your email inbox.', 'success');
     }
 });
 
@@ -97,22 +86,6 @@ togglePasswordBtn.addEventListener('click', () => {
         togglePasswordIcon.classList.replace('ph-eye', 'ph-eye-slash');
     } else {
         togglePasswordIcon.classList.replace('ph-eye-slash', 'ph-eye');
-    }
-});
-
-// Forgot Password
-forgotPasswordBtn.addEventListener('click', async () => {
-    const email = emailInput.value.trim();
-    if (!email) {
-        showToast('Please enter your email address first.', 'info');
-        return;
-    }
-    try {
-        const { error } = await supabase.auth.resetPasswordForEmail(email);
-        if(error) throw error;
-        showToast('Password reset link sent! Check your inbox.', 'success');
-    } catch (error) {
-        showToast(error.message, 'error');
     }
 });
 
@@ -181,10 +154,10 @@ async function handleSuccessfulAuth(user, explicitData = null) {
             // Unfinished profile -> Intercept and pop modal
             pendingUser = user;
             profileModal.style.display = 'flex';
-            showToast('Please complete your profile to continue.', 'info');
+            showToast('Please complete your profile strictly to continue.', 'info');
         } else {
             // Profile is fully complete
-            showToast('Welcome back!', 'success');
+            showToast('Welcome back to your dashboard!', 'success');
             setTimeout(() => window.location.href = 'admin.html', 1000);
         }
     } catch (error) {
@@ -210,27 +183,27 @@ authForm.addEventListener('submit', async (e) => {
             const role = roleSelect.value;
             
             if (!fullName) {
-                showToast('Please enter your full name.', 'error');
+                showToast('Please enter your full name natively.', 'error');
                 submitBtn.disabled = false;
                 submitBtn.style.opacity = '1';
                 return;
             }
 
-            blockAuthObserver = true;
-
             const { data, error } = await supabase.auth.signUp({ 
                 email, 
                 password,
-                options: { data: { full_name: fullName } } // Supabase magically handles basic creds
+                options: { 
+                    data: { full_name: fullName },
+                    emailRedirectTo: window.location.origin + '/login.html'
+                } 
             });
 
             if (error) {
-                blockAuthObserver = false;
                 throw error;
             }
             
             if(data.user) {
-                // Immediately save the real estate fields before they lose context
+                // Immediately save the real estate fields before they lose context into Postgres securely
                 const { error: upsertError } = await supabase.from('users').upsert({
                     id: data.user.id,
                     full_name: fullName,
@@ -240,63 +213,35 @@ authForm.addEventListener('submit', async (e) => {
                 });
                 
                 if(upsertError) {
-                    blockAuthObserver = false;
                     throw upsertError;
                 }
 
-                // Inject Custom EmailJS OTP System internally bypassing Magic Link rules
-                generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-                pendingUserCache = data.user;
-
-                // Transmit physically
-                try {
-                    await emailjs.send("service_4zp6vha", "template_tnpxirj", {
-                        user_name: fullName,
-                        user_email: email,
-                        property_title: "Account Verification",
-                        property_url: window.location.origin,
-                        message: `Welcome to Vista! Your 6-digit Account Verification Code is: ${generatedOtp}`
-                    });
-                } catch(emailError) {
-                    blockAuthObserver = false;
-                    const errorDetail = emailError.text || JSON.stringify(emailError) || emailError.message || "Unknown error";
-                    alert("🚨 EMAILJS FAILED TO SEND OTP 🚨\n\nYour OTP email could not physically send because EmailJS rejected the API request!\n\nDetailed Error: " + errorDetail + "\n\nIf the error says 'template_id is invalid', you MUST update line 253 in login.js with your real Template ID!");
-                    throw new Error("EmailJS Provider completely failed: " + errorDetail);
+                // If Confirm Email is ON, Native Supabase natively traps the session issuance explicitly returning null
+                if (!data.session) {
+                    showToast('Success! Please securely check your email inbox to perfectly verify your account via Magic Link.', 'success');
+                    authForm.reset();
+                    document.getElementById('toggleBtn').click(); // Swap visually
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                    return;
                 }
 
-                // Overhaul specific DOM structures dynamically
-                authForm.style.display = 'none';
-                document.getElementById('googleBtn').style.display = 'none';
-                const separators = document.querySelectorAll('.auth-toggle, hr, span');
-                separators.forEach(el => {
-                    if(el.textContent.includes('OR CONTINUE') || el.classList.contains('auth-toggle')) {
-                        el.parentElement.style.display = 'none';
-                    }
-                });
-                const authFooter = document.querySelector('.auth-footer');
-                if(authFooter) authFooter.style.display = 'none';
-                
-                document.getElementById('otpSection').style.display = 'block';
-                document.getElementById('otpEmailDisplay').textContent = email;
-                
-                showToast('Success! Verification code sent to your email.', 'success');
-                submitBtn.disabled = false;
-                submitBtn.style.opacity = '1';
-                return;
+                // If confirmations are explicitly disabled, log them effortlessly in completely
+                await handleSuccessfulAuth(data.user);
             }
 
         } else {
             const { data, error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) throw error;
-            // observer catches this
+            // observer natively catches this and processes brilliantly
         }
     } catch (error) {
         let msg = error.message;
         if (error.status === 400 && error.message.includes('Invalid login')) {
-            msg = 'Invalid email or password.';
+            msg = 'Invalid email or password physically inputted.';
         }
         if (error.message.includes('Email not confirmed')) {
-            msg = 'Please check your email and click the confirmation link before signing in.';
+            msg = 'Please definitively check your email and formally click the confirmation link before attempting to sign in here.';
         }
         showToast(msg, 'error');
     } finally {
