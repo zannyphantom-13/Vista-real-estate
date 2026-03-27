@@ -40,19 +40,28 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         ownerPortal.style.display = 'block';
         loadUserManagement();
 
-    } else if (userDoc.role === 'agent') {
-        // Agent Uploading Level
-        if (userDoc.is_approved === true) {
-            uploadPortal.style.display = 'block';
-        } else {
-            // Locked out pending explicit verification
-            pendingPortal.style.display = 'block';
-        }
-
     } else {
-        // Consumer / Standard User Level (Buyer, Renter, Seller)
+        // Consumer / Standard User Level (Buyer, Renter, Seller) always can universally load Saved Homes natively
         const consumerPortal = document.getElementById('consumerPortal');
         if(consumerPortal) consumerPortal.style.display = 'block';
+
+        if (userDoc.role === 'agent' || userDoc.role === 'seller') {
+            if (userDoc.is_approved === true) {
+                uploadPortal.style.display = 'block';
+            } else {
+                // Determine verification phase
+                const vStatus = userDoc.verification_status || 'unsubmitted';
+                
+                if (vStatus === 'unsubmitted' || vStatus === 'rejected') {
+                    if(!document.getElementById('unverifiedPortal')) return;
+                    document.getElementById('unverifiedPortal').style.display = 'block';
+                    document.getElementById('agentFields').style.display = (userDoc.role === 'agent') ? 'block' : 'none';
+                    if (vStatus === 'rejected') document.getElementById('rejectedWarning').style.display = 'block';
+                } else if (vStatus === 'pending') {
+                    pendingPortal.style.display = 'block';
+                }
+            }
+        }
     }
 });
 
@@ -75,18 +84,30 @@ async function loadUserManagement() {
     tbody.innerHTML = '';
 
     users.forEach(u => {
+        const vStatus = u.verification_status || 'unsubmitted';
         const isApproved = u.is_approved === true;
-        const badgeColor = isApproved ? '#10b981' : '#f59e0b';
-        const badgeText = isApproved ? 'Approved' : 'Pending';
         
-        // Owner conditionally rendering Action triggers depending on exact user state
-        let actionBtn = '';
-        if (u.role === 'agent') {
-             actionBtn = isApproved 
-                ? `<button class="btn btn-secondary" style="padding: 6px 16px; font-size: 0.85rem; border-color: #ef4444; color: #ef4444;" onclick="toggleApproval('${u.id}', false)">Revoke Access</button>`
-                : `<button class="btn btn-primary" style="padding: 6px 16px; font-size: 0.85rem;" onclick="toggleApproval('${u.id}', true)">Approve Access</button>`;
-        } else {
-             actionBtn = `<span style="color: var(--text-muted); font-size: 0.85rem;">Consumer Access</span>`;
+        // Compute Label Aesthetics smartly
+        let badgeColor = '#94a3b8';
+        let badgeText = 'Unsubmitted';
+        if (isApproved || vStatus === 'approved') {
+            badgeColor = '#10b981'; badgeText = 'Approved';
+        } else if (vStatus === 'pending') {
+            badgeColor = '#3b82f6'; badgeText = 'Pending Review';
+        } else if (vStatus === 'rejected') {
+            badgeColor = '#ef4444'; badgeText = 'Rejected';
+        }
+
+        // Action button is strictly dynamically routed if they have submitted documentation
+        let actionBtn = `<span style="color: var(--border); font-size: 0.85rem;">No File Action</span>`;
+        if (u.role === 'agent' || u.role === 'seller') {
+            if (vStatus === 'pending') {
+                actionBtn = `<button class="btn btn-primary" style="padding: 6px 16px; font-size: 0.85rem;" onclick="openReviewModal('${u.id}', '${u.full_name}', '${u.license_number}', '${u.brokerage_name}', '${u.id_url}')">Review Application</button>`;
+            } else if (isApproved) {
+                actionBtn = `<button class="btn btn-secondary" style="padding: 6px 16px; font-size: 0.85rem; border-color: #ef4444; color: #ef4444;" onclick="processApplication('${u.id}', false)">Revoke Access</button>`;
+            } else if (vStatus === 'rejected') {
+                actionBtn = `<span style="color: #ef4444; font-size: 0.85rem; font-weight: 500;">Rejected Status</span>`;
+            }
         }
 
         const tr = document.createElement('tr');
@@ -103,15 +124,33 @@ async function loadUserManagement() {
     });
 }
 
-// Global scope function manually callable from the inline HTML tables
-window.toggleApproval = async function(userId, status) {
-    const { error } = await supabase.from('users').update({ is_approved: status }).eq('id', userId);
+// Global scope function for opening securely the Application Review parameters
+window.openReviewModal = function(userId, name, license, brokerage, idUrl) {
+    document.getElementById('reviewModal').style.display = 'flex';
+    document.getElementById('reviewMeta').innerHTML = `
+        <span style="display: block; margin-bottom: 8px;"><strong>Applicant Entity:</strong> ${name && name !== 'undefined' ? name : 'Anonymous'}</span>
+        <span style="display: block; margin-bottom: 8px;"><strong>Submitted License Number:</strong> ${license && license !== 'undefined' && license !== 'null' ? license : '(Consumer Exemption)'}</span>
+        <span style="display: block; margin-bottom: 8px;"><strong>Brokerage Organization:</strong> ${brokerage && brokerage !== 'undefined' && brokerage !== 'null' ? brokerage : '(Consumer Exemption)'}</span>
+    `;
+    document.getElementById('reviewIdUrl').href = idUrl;
+    
+    // Inject the exact function triggers instantly to bypass scope
+    document.getElementById('confirmApproveBtn').onclick = () => window.processApplication(userId, true);
+    document.getElementById('confirmRejectBtn').onclick = () => window.processApplication(userId, false);
+};
+
+window.processApplication = async function(userId, isApproved) {
+    const status = isApproved ? 'approved' : 'rejected';
+    const payload = { verification_status: status, is_approved: isApproved };
+    
+    const { error } = await supabase.from('users').update(payload).eq('id', userId);
     
     if (error) {
-        showToast('Error modifying access: ' + error.message, 'error');
+        showToast('Error finalizing verdict: ' + error.message, 'error');
     } else {
-        showToast(`Agent successfully ${status ? 'approved' : 'revoked'} on pipeline!`, 'success');
-        loadUserManagement(); // Hydrate dynamic DOM updates
+        showToast(`Identity manually ${status}!`, 'success');
+        document.getElementById('reviewModal').style.display = 'none';
+        loadUserManagement(); // Hydrate DOM safely
     }
 };
 
@@ -187,6 +226,59 @@ if (uploadForm) {
         } finally {
             uploadBtn.textContent = 'Publish Listing';
             uploadBtn.disabled = false;
+        }
+    });
+}
+
+// ==========================================
+// 3. SECURE IDENTITY VERIFICATION UPLOAD LOGIC
+// ==========================================
+const verifyForm = document.getElementById('verifyForm');
+if (verifyForm) {
+    verifyForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('verifySubmitBtn');
+        const idInput = document.getElementById('idUpload');
+        const file = idInput.files[0];
+        if (!file) return;
+
+        btn.textContent = 'Encrypting & Uploading Identification...';
+        btn.disabled = true;
+
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+            const cloudinaryRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+                method: 'POST', body: formData
+            });
+
+            if (!cloudinaryRes.ok) throw new Error('Secure document vault structurally rejected the file payload.');
+            const data = await cloudinaryRes.json();
+            const secureUrl = data.secure_url;
+
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            const payload = {
+                verification_status: 'pending',
+                id_url: secureUrl,
+                license_number: document.getElementById('licenseNum') ? document.getElementById('licenseNum').value.trim() : null,
+                brokerage_name: document.getElementById('brokerageName') ? document.getElementById('brokerageName').value.trim() : null
+            };
+
+            const { error } = await supabase.from('users').update(payload).eq('id', session.user.id);
+            if(error) throw error;
+
+            showToast('Identity explicitly submitted to the Supreme Admin!', 'success');
+            setTimeout(() => window.location.reload(), 2000);
+
+        } catch (error) {
+            showToast('Error uploading identity payload: ' + error.message, 'error');
+            console.error(error);
+        } finally {
+            btn.textContent = 'Submit Verification File';
+            btn.disabled = false;
         }
     });
 }

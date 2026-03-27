@@ -162,14 +162,44 @@
       </form>
     </div>
 
-    <!-- 3) PENDING AGENT: Wait Screen -->
-    <div id="pendingPortal" style="display: none; max-width: 1000px; margin: 0 auto; text-align: center; background: white; padding: 60px 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
-       <i class="ph ph-lock-key" style="font-size: 64px; color: var(--primary); margin-bottom: 20px;"></i>
-       <h2 style="margin-bottom: 12px;">Agent Workspace Locked</h2>
-       <p style="color: var(--text-muted); line-height: 1.6;">Your Agent account is currently locked and actively under review by the Vista administration team. Once your licenses and identity are securely verified by the owner, your physical upload rights will be permanently granted here.</p>
+    <!-- 3) UNVERIFIED: Application Portal -->
+    <div id="unverifiedPortal" style="display: none; max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
+       <h2 style="margin-bottom: 8px;">Identity Verification Required</h2>
+       <p style="color: var(--text-muted); margin-bottom: 32px;">To unlock real estate listing capabilities, you must physically verify your identity securely with the platform Owner.</p>
+       
+       <div id="rejectedWarning" style="display: none; background: #fee2e2; color: #ef4444; padding: 16px; border-radius: 8px; margin-bottom: 24px; font-weight: 500;">
+           <i class="ph ph-warning"></i> Your previous application was rejected. Please securely upload valid credentials again.
+       </div>
+
+       <form id="verifyForm" class="auth-form">
+          <div id="agentFields" style="display: none;">
+              <div class="input-group">
+                  <label>Real Estate License Number</label>
+                  <input type="text" id="licenseNum" placeholder="e.g. RE-123456" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px;">
+              </div>
+              <div class="input-group" style="margin-top: 16px;">
+                  <label>Brokerage Name</label>
+                  <input type="text" id="brokerageName" placeholder="e.g. Vista Luxury Real Estate" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px;">
+              </div>
+          </div>
+
+          <div class="input-group" style="margin-top: 16px;">
+             <label for="idUpload">Government Issued ID (Driver's License or Passport)</label>
+             <input type="file" id="idUpload" required accept="image/*" style="width:100%; padding: 10px; background: #f8fafc; border: 1px dashed var(--border); border-radius: 8px; cursor: pointer;">
+          </div>
+          
+          <button type="submit" id="verifySubmitBtn" class="btn btn-primary w-full" style="margin-top: 32px;">Submit Verification File</button>
+       </form>
     </div>
 
-    <!-- 4) CONSUMER WORKSPACE: Saved Homes -->
+    <!-- 4) PENDING AGENT/SELLER: Wait Screen -->
+    <div id="pendingPortal" style="display: none; max-width: 1000px; margin: 0 auto; text-align: center; background: white; padding: 60px 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
+       <i class="ph ph-lock-key" style="font-size: 64px; color: var(--primary); margin-bottom: 20px;"></i>
+       <h2 style="margin-bottom: 12px;">Workspace Application Locked</h2>
+       <p style="color: var(--text-muted); line-height: 1.6;">Your credentials exist securely locked natively in our vault while the Administration team surgically reviews your physical identity.</p>
+    </div>
+
+    <!-- 5) CONSUMER WORKSPACE: Saved Homes -->
     <div id="consumerPortal" style="display: none; max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
        <div style="text-align: center; padding: 40px 0;">
             <i class="ph ph-house" style="font-size: 48px; color: var(--border); margin-bottom: 16px;"></i>
@@ -180,6 +210,25 @@
     </div>
 
   </main>
+
+  <!-- Document Review Modal (Owner Only) -->
+  <div id="reviewModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 999; align-items: center; justify-content: center;">
+      <div style="background: white; padding: 40px; border-radius: 16px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto;">
+          <h2 style="margin-bottom: 8px;">Review Document Application</h2>
+          <p id="reviewMeta" style="color: var(--text-muted); margin-bottom: 24px; line-height: 1.6;">Application Details</p>
+          
+          <a id="reviewIdUrl" href="#" target="_blank" style="display: block; text-align: center; margin-bottom: 24px; padding: 24px; background: #f8fafc; border: 1px dashed var(--border); border-radius: 12px; color: var(--primary); font-weight: 600; text-decoration: none;">
+              <i class="ph ph-identification-card" style="font-size: 48px; display: block; margin-bottom: 8px;"></i>
+              View User Image Securely
+          </a>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <button class="btn btn-secondary" id="confirmRejectBtn" style="border-color: #ef4444; color: #ef4444; background: transparent;">Reject</button>
+              <button class="btn btn-primary" id="confirmApproveBtn">Verify & Approve</button>
+          </div>
+          <button onclick="document.getElementById('reviewModal').style.display = 'none'" style="margin-top: 24px; width: 100%; border: none; background: transparent; color: var(--text-muted); font-weight: 600; cursor: pointer;">Cancel Close</button>
+      </div>
+  </div>
 
   <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
