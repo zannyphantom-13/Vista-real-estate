@@ -9,13 +9,22 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css"/>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    @keyframes slideUpFade {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .portal-anim {
+      animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    }
+  </style>
 </head>
 <body class="bg-color" style="display: none;" id="adminBody">
 
   <!-- NAVBAR -->
   <nav class="navbar">
     <div class="container nav-inner">
-      <a href="index.html" class="logo">
+      <a href="index.html" class="logo" id="dynamicLogo">
         <i class="ph ph-house-line"></i> Vista Admin
       </a>
       <div class="nav-actions">
@@ -30,7 +39,7 @@
   <main class="container" style="padding: 60px 20px;">
     
     <!-- 0) UNIVERSAL PROFILE PORTAL (Visible for all roles) -->
-    <div id="profilePortal" style="display: none; max-width: 1000px; margin: 0 auto 32px auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-sm);">
+    <div id="profilePortal" class="portal-anim" style="display: none; max-width: 1000px; margin: 0 auto 32px auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-sm);">
        <h1 style="margin-bottom: 8px;">My Dedicated Profile</h1>
        <p style="color: var(--text-muted); margin-bottom: 32px;">Manage your personal identity on the Vista platform.</p>
        
@@ -55,7 +64,7 @@
     </div>
 
     <!-- 1) OWNER PORTAL: User Management -->
-    <div id="ownerPortal" style="display: none; max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
+    <div id="ownerPortal" class="portal-anim" style="animation-delay: 0.1s; display: none; max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
         <h2 style="margin-bottom: 8px;">Owner Workspace</h2>
         <p style="color: var(--text-muted); margin-bottom: 32px;">Manage registering agents and explicitly grant physical upload permissions to the platform.</p>
         
@@ -78,7 +87,7 @@
     </div>
 
     <!-- 2) AUTHORIZED AGENT: Upload Form -->
-    <div id="uploadPortal" style="display: none; max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
+    <div id="uploadPortal" class="portal-anim" style="animation-delay: 0.1s; display: none; max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
       <h2 style="margin-bottom: 8px;">Agent Workspace: Upload Property</h2>
       <p style="color: var(--text-muted); margin-bottom: 32px;">Fill in the details below to rigidly list a new property on Vista.</p>
       
@@ -163,7 +172,7 @@
     </div>
 
     <!-- 3) UNVERIFIED: Application Portal -->
-    <div id="unverifiedPortal" style="display: none; max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
+    <div id="unverifiedPortal" class="portal-anim" style="animation-delay: 0.1s; display: none; max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
        <h2 style="margin-bottom: 8px;">Identity Verification Required</h2>
        <p style="color: var(--text-muted); margin-bottom: 32px;">To unlock real estate listing capabilities, you must physically verify your identity securely with the platform Owner.</p>
        
@@ -193,14 +202,14 @@
     </div>
 
     <!-- 4) PENDING AGENT/SELLER: Wait Screen -->
-    <div id="pendingPortal" style="display: none; max-width: 1000px; margin: 0 auto; text-align: center; background: white; padding: 60px 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
+    <div id="pendingPortal" class="portal-anim" style="animation-delay: 0.1s; display: none; max-width: 1000px; margin: 0 auto; text-align: center; background: white; padding: 60px 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
        <i class="ph ph-lock-key" style="font-size: 64px; color: var(--primary); margin-bottom: 20px;"></i>
        <h2 style="margin-bottom: 12px;">Workspace Application Locked</h2>
        <p style="color: var(--text-muted); line-height: 1.6;">Your credentials exist securely locked natively in our vault while the Administration team surgically reviews your physical identity.</p>
     </div>
 
     <!-- 5) CONSUMER WORKSPACE: Saved Homes -->
-    <div id="consumerPortal" style="display: none; max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
+    <div id="consumerPortal" class="portal-anim" style="animation-delay: 0.1s; display: none; max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
        <div style="text-align: center; padding: 40px 0;">
             <i class="ph ph-house" style="font-size: 48px; color: var(--border); margin-bottom: 16px;"></i>
             <h3 style="color: var(--text-main);">My Saved Homes</h3>

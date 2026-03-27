@@ -25,6 +25,23 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
     // Unhide the main body so styling flashes properly
     adminBody.style.display = 'block';
 
+    // UI/UX Dynamic Top Logo Rendering
+    const dynamicLogo = document.getElementById('dynamicLogo');
+    if (dynamicLogo) {
+        let logoText = 'Vista User';
+        let logoIcon = 'ph-user';
+
+        if (userDoc.is_owner === true) {
+            logoText = 'Vista Admin';
+            logoIcon = 'ph-shield-check';
+        } else if (userDoc.role === 'agent') {
+            logoText = 'Vista Agent';
+            logoIcon = 'ph-briefcase';
+        }
+
+        dynamicLogo.innerHTML = `<i class="ph ${logoIcon}"></i> ${logoText}`;
+    }
+
     // UNIVERSAL: Render Profile UI for EVERYONE natively
     document.getElementById('profilePortal').style.display = 'block';
     document.getElementById('profName').textContent = userDoc.full_name || 'Anonymous';
