@@ -275,8 +275,8 @@ const initApp = async () => {
         const listBtn = document.getElementById('listPropertyBtn');
         if (session && session.user && userBtn) {
             userBtn.innerHTML = '<i class="ph ph-user-check" style="color: var(--primary);"></i>';
-            userBtn.href = 'admin.html';
-            if(listBtn) listBtn.href = 'admin.html';
+            userBtn.href = 'profile.html';
+            if(listBtn) listBtn.href = 'profile.html';
         } else if (userBtn) {
             userBtn.innerHTML = '<i class="ph ph-user"></i>';
             userBtn.href = 'login.html';
