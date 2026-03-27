@@ -24,8 +24,8 @@
   <!-- NAVBAR -->
   <nav class="navbar">
     <div class="container nav-inner">
-      <a href="index.html" class="logo" id="dynamicLogo">
-        <i class="ph ph-house-line"></i> Vista Admin
+      <a href="index.html" class="logo">
+        <i class="ph ph-shield-check"></i> Vista Admin
       </a>
       <div class="nav-actions">
         <!-- Optional conditional switch to owner mode if they also want to upload -->
@@ -38,39 +38,6 @@
   <!-- MAIN CONTENT -->
   <main class="container" style="padding: 60px 20px;">
     
-    <!-- 0) UNIVERSAL PROFILE PORTAL (Visible for all roles) -->
-    <div id="profilePortal" class="portal-anim" style="display: none; max-width: 1000px; margin: 0 auto 32px auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-sm);">
-       <h1 style="margin-bottom: 8px;">My Dedicated Profile</h1>
-       <p style="color: var(--text-muted); margin-bottom: 32px;">Manage your personal identity on the Vista platform.</p>
-       
-       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-            <div style="padding: 24px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;">
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;"><i class="ph ph-user"></i> Full Name</p>
-                <div id="profName" style="font-weight: 700; font-size: 1.2rem;"></div>
-            </div>
-            <div style="padding: 24px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;">
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;"><i class="ph ph-envelope-simple"></i> Email</p>
-                <div id="profEmail" style="font-weight: 700; font-size: 1.1rem; word-break: break-all;"></div>
-            </div>
-            <div style="padding: 24px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;">
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;"><i class="ph ph-phone"></i> Contact Phone</p>
-                <div id="profPhone" style="font-weight: 700; font-size: 1.2rem;"></div>
-            </div>
-            <div style="padding: 24px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;">
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;"><i class="ph ph-identification-badge"></i> Account Type</p>
-                <div id="profRole" style="font-weight: 700; font-size: 1.2rem; text-transform: capitalize; color: var(--primary);"></div>
-            </div>
-       </div>
-
-       <!-- DYNAMIC UPGRADE PIPELINE -->
-       <div id="upgradeSection" style="margin-top: 32px; padding: 24px; background: #fdf2f8; border: 1px dashed #f472b6; border-radius: 12px; text-align: center; display: none;">
-            <i class="ph ph-trend-up" style="font-size: 32px; color: #db2777; margin-bottom: 12px;"></i>
-            <h3 style="color: #9d174d; margin-bottom: 8px;">Upgrade Your Account Limitlessly</h3>
-            <p id="upgradeDesc" style="color: #be185d; margin-bottom: 16px; font-size: 0.95rem;">Unlock structural capabilities strictly designed for advanced users.</p>
-            <button id="upgradeBtn" class="btn btn-primary" style="background: #db2777; border-color: #db2777;">Upgrade Tier</button>
-       </div>
-    </div>
-
     <!-- 1) OWNER PORTAL: User Management -->
     <div id="ownerPortal" class="portal-anim" style="animation-delay: 0.1s; display: none; max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
         <h2 style="margin-bottom: 8px;">Owner Workspace</h2>
@@ -92,138 +59,6 @@
                 </tbody>
             </table>
         </div>
-    </div>
-
-    <!-- 2) AUTHORIZED AGENT: Upload Form -->
-    <div id="uploadPortal" class="portal-anim" style="animation-delay: 0.1s; display: none; max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
-      <h2 style="margin-bottom: 8px;">Agent Workspace: Upload Property</h2>
-      <p style="color: var(--text-muted); margin-bottom: 32px;">Fill in the details below to rigidly list a new property on Vista.</p>
-      
-      <form id="uploadForm" class="auth-form">
-        <!-- Basic Info -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-          <div class="input-group">
-            <label for="title">Title</label>
-            <input type="text" id="title" required placeholder="e.g. Modern Apartment with City Views" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px;">
-          </div>
-          <div class="input-group">
-            <label for="price">Price ($)</label>
-            <input type="number" id="price" required min="1" placeholder="e.g. 650000" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px;">
-          </div>
-        </div>
-
-        <div class="input-group" style="margin-top: 20px;">
-          <label for="address">Address</label>
-          <input type="text" id="address" required placeholder="e.g. 1200 Brickell Ave, Miami, FL" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px;">
-        </div>
-
-        <!-- Details -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 20px;">
-          <div class="input-group">
-            <label for="beds">Beds</label>
-            <input type="number" id="beds" required min="0" placeholder="e.g. 3" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px;">
-          </div>
-          <div class="input-group">
-            <label for="baths">Baths</label>
-            <input type="number" id="baths" required min="0" placeholder="e.g. 2" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px;">
-          </div>
-          <div class="input-group">
-            <label for="sqft">Square Feet</label>
-            <input type="number" id="sqft" required min="100" placeholder="e.g. 1500" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px;">
-          </div>
-        </div>
-
-        <!-- Categorization -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 20px;">
-          <div class="input-group">
-            <label for="type">Property Type</label>
-            <div class="select-wrapper">
-              <select id="type" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius);">
-                <option value="house">House</option>
-                <option value="apartment">Apartment</option>
-                <option value="townhouse">Townhouse</option>
-                <option value="villa">Villa</option>
-              </select>
-              <i class="ph ph-caret-down"></i>
-            </div>
-          </div>
-          
-          <div class="input-group">
-            <label for="status">Listing Status</label>
-            <div class="select-wrapper">
-              <select id="status" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius);">
-                <option value="buy">For Sale (Buy)</option>
-                <option value="rent">For Rent</option>
-                <option value="sold">Sold</option>
-              </select>
-              <i class="ph ph-caret-down"></i>
-            </div>
-          </div>
-
-          <div class="input-group">
-            <label>Is New Construction?</label>
-            <label style="display: flex; align-items: center; gap: 8px; margin-top: 12px; font-weight: 500;">
-              <input type="checkbox" id="isNew" style="width: 18px; height: 18px; cursor: pointer;">
-              Yes, brand new
-            </label>
-          </div>
-        </div>
-
-        <!-- Image Upload -->
-        <div class="input-group" style="margin-top: 20px;">
-          <label for="image">Property Image</label>
-          <input type="file" id="image" required accept="image/*" style="width:100%; padding: 10px; background: #f8fafc; border: 1px dashed var(--border); border-radius: 8px; cursor: pointer;">
-        </div>
-
-        <button type="submit" class="btn btn-primary w-full" id="uploadBtn" style="margin-top: 32px;">Publish Web Listing</button>
-      </form>
-    </div>
-
-    <!-- 3) UNVERIFIED: Application Portal -->
-    <div id="unverifiedPortal" class="portal-anim" style="animation-delay: 0.1s; display: none; max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
-       <h2 style="margin-bottom: 8px;">Identity Verification Required</h2>
-       <p style="color: var(--text-muted); margin-bottom: 32px;">To unlock real estate listing capabilities, you must physically verify your identity securely with the platform Owner.</p>
-       
-       <div id="rejectedWarning" style="display: none; background: #fee2e2; color: #ef4444; padding: 16px; border-radius: 8px; margin-bottom: 24px; font-weight: 500;">
-           <i class="ph ph-warning"></i> Your previous application was rejected. Please securely upload valid credentials again.
-       </div>
-
-       <form id="verifyForm" class="auth-form">
-          <div id="agentFields" style="display: none;">
-              <div class="input-group">
-                  <label>Real Estate License Number</label>
-                  <input type="text" id="licenseNum" placeholder="e.g. RE-123456" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px;">
-              </div>
-              <div class="input-group" style="margin-top: 16px;">
-                  <label>Brokerage Name</label>
-                  <input type="text" id="brokerageName" placeholder="e.g. Vista Luxury Real Estate" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px;">
-              </div>
-          </div>
-
-          <div class="input-group" style="margin-top: 16px;">
-             <label for="idUpload">Government Issued ID (Driver's License or Passport)</label>
-             <input type="file" id="idUpload" required accept="image/*" style="width:100%; padding: 10px; background: #f8fafc; border: 1px dashed var(--border); border-radius: 8px; cursor: pointer;">
-          </div>
-          
-          <button type="submit" id="verifySubmitBtn" class="btn btn-primary w-full" style="margin-top: 32px;">Submit Verification File</button>
-       </form>
-    </div>
-
-    <!-- 4) PENDING AGENT/SELLER: Wait Screen -->
-    <div id="pendingPortal" class="portal-anim" style="animation-delay: 0.1s; display: none; max-width: 1000px; margin: 0 auto; text-align: center; background: white; padding: 60px 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
-       <i class="ph ph-lock-key" style="font-size: 64px; color: var(--primary); margin-bottom: 20px;"></i>
-       <h2 style="margin-bottom: 12px;">Workspace Application Locked</h2>
-       <p style="color: var(--text-muted); line-height: 1.6;">Your credentials exist securely locked natively in our vault while the Administration team surgically reviews your physical identity.</p>
-    </div>
-
-    <!-- 5) CONSUMER WORKSPACE: Saved Homes -->
-    <div id="consumerPortal" class="portal-anim" style="animation-delay: 0.1s; display: none; max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
-       <div style="text-align: center; padding: 40px 0;">
-            <i class="ph ph-house" style="font-size: 48px; color: var(--border); margin-bottom: 16px;"></i>
-            <h3 style="color: var(--text-main);">My Saved Homes</h3>
-            <p style="color: var(--text-muted);">You have not saved any properties yet. Go back to search to start liking homes!</p>
-            <a href="index.html" class="btn btn-primary" style="margin-top: 24px;">Browse Homes</a>
-       </div>
     </div>
 
   </main>

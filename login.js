@@ -125,7 +125,7 @@ profileForm.addEventListener('submit', async (e) => {
         
         showToast('Profile completed! Welcome to Vista.', 'success');
         setTimeout(() => {
-            window.location.href = 'admin.html';
+            window.location.href = 'profile.html';
         }, 1000);
     } catch (error) {
         showToast('Failed to save profile: ' + error.message, 'error');
@@ -143,7 +143,7 @@ async function handleSuccessfulAuth(user, explicitData = null) {
             if(upsertError) throw upsertError;
             
             showToast('Account created successfully!', 'success');
-            setTimeout(() => window.location.href = 'admin.html', 1000);
+            setTimeout(() => window.location.href = explicitData.is_owner ? 'admin.html' : 'profile.html', 1000);
             return;
         }
 
@@ -158,7 +158,7 @@ async function handleSuccessfulAuth(user, explicitData = null) {
         } else {
             // Profile is fully complete
             showToast('Welcome back to your dashboard!', 'success');
-            setTimeout(() => window.location.href = 'admin.html', 1000);
+            setTimeout(() => window.location.href = userDoc.is_owner ? 'admin.html' : 'profile.html', 1000);
         }
     } catch (error) {
         console.error('Handling auth data error:', error);
