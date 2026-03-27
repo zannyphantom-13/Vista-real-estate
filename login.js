@@ -1,7 +1,7 @@
 // login.js
 
 let isSignUpMode = false;
-let pendingUser = null; 
+let pendingUser = null;
 
 // DOM Elements
 const authTitle = document.getElementById('authTitle');
@@ -43,12 +43,12 @@ document.getElementById('forgotPasswordBtn')?.addEventListener('click', async ()
     if (!email) {
         return showToast('Please type your email address physically into the Email box first!', 'error');
     }
-    
+
     // Explicitly command Supabase to emit the custom Recovery token physically to the inbox
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: window.location.origin + '/reset-password.html'
     });
-    
+
     if (error) {
         showToast('System Reset failed: ' + error.message, 'error');
     } else {
@@ -92,13 +92,13 @@ togglePasswordBtn.addEventListener('click', () => {
 // Google Sign In
 googleBtn.addEventListener('click', async () => {
     try {
-        const { error } = await supabase.auth.signInWithOAuth({ 
+        const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
                 redirectTo: window.location.origin + '/login.html'
             }
         });
-        if(error) throw error;
+        if (error) throw error;
     } catch (error) {
         showToast('Google Sign-In Initialization Failed: ' + error.message, 'error');
     }
@@ -108,10 +108,10 @@ googleBtn.addEventListener('click', async () => {
 profileForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!pendingUser) return;
-    
+
     modalSubmitBtn.disabled = true;
     modalSubmitBtn.textContent = 'Saving...';
-    
+
     try {
         const { error } = await supabase.from('users').upsert({
             id: pendingUser.id,
@@ -120,9 +120,9 @@ profileForm.addEventListener('submit', async (e) => {
             full_name: pendingUser.user_metadata?.full_name || 'Vista User',
             email: pendingUser.email
         });
-        
+
         if (error) throw error;
-        
+
         showToast('Profile completed! Welcome to Vista.', 'success');
         setTimeout(() => {
             window.location.href = 'profile.html';
@@ -140,8 +140,8 @@ async function handleSuccessfulAuth(user, explicitData = null) {
         // Did they use the email form to explicitly provide sign up data just now?
         if (explicitData) {
             const { error: upsertError } = await supabase.from('users').upsert(explicitData);
-            if(upsertError) throw upsertError;
-            
+            if (upsertError) throw upsertError;
+
             showToast('Account created successfully!', 'success');
             setTimeout(() => window.location.href = explicitData.is_owner ? 'admin.html' : 'profile.html', 1000);
             return;
@@ -149,7 +149,7 @@ async function handleSuccessfulAuth(user, explicitData = null) {
 
         // Fetch their public user profile
         const { data: userDoc, error } = await supabase.from('users').select('*').eq('id', user.id).single();
-        
+
         if (error || !userDoc || !userDoc.phone || !userDoc.role) {
             // Unfinished profile -> Intercept and pop modal
             pendingUser = user;
@@ -172,7 +172,7 @@ authForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = emailInput.value.trim();
     const password = passwordInput.value;
-    
+
     submitBtn.disabled = true;
     submitBtn.style.opacity = '0.7';
 
@@ -181,7 +181,7 @@ authForm.addEventListener('submit', async (e) => {
             const fullName = fullNameInput.value.trim();
             const phone = phoneInput.value.trim();
             const role = roleSelect.value;
-            
+
             if (!fullName) {
                 showToast('Please enter your full name natively.', 'error');
                 submitBtn.disabled = false;
@@ -189,20 +189,20 @@ authForm.addEventListener('submit', async (e) => {
                 return;
             }
 
-            const { data, error } = await supabase.auth.signUp({ 
-                email, 
+            const { data, error } = await supabase.auth.signUp({
+                email,
                 password,
-                options: { 
+                options: {
                     data: { full_name: fullName },
                     emailRedirectTo: window.location.origin + '/login.html'
-                } 
+                }
             });
 
             if (error) {
                 throw error;
             }
-            
-            if(data.user) {
+
+            if (data.user) {
                 // Immediately save the real estate fields before they lose context into Postgres securely
                 const { error: upsertError } = await supabase.from('users').upsert({
                     id: data.user.id,
@@ -211,8 +211,8 @@ authForm.addEventListener('submit', async (e) => {
                     role: role,
                     email: email
                 });
-                
-                if(upsertError) {
+
+                if (upsertError) {
                     throw upsertError;
                 }
 
@@ -238,10 +238,10 @@ authForm.addEventListener('submit', async (e) => {
     } catch (error) {
         let msg = error.message;
         if (error.status === 400 && error.message.includes('Invalid login')) {
-            msg = 'Invalid email or password physically inputted.';
+            msg = 'Invalid email or password.';
         }
         if (error.message.includes('Email not confirmed')) {
-            msg = 'Please definitively check your email and formally click the confirmation link before attempting to sign in here.';
+            msg = 'Please check your email and click the confirmation link before attempting to sign in here.';
         }
         showToast(msg, 'error');
     } finally {

@@ -46,8 +46,13 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
 // 1. OWNER PORTAL LOGIC
 // ==========================================
 async function loadUserManagement() {
-    // Fetch all users actively traversing the platform, except other supreme owners
-    const { data: users, error } = await supabase.from('users').select('*').neq('is_owner', true).order('created_at', { ascending: false });
+    // Fetch explicit seller/agent users actively traversing the platform, except other supreme owners
+    const { data: users, error } = await supabase
+        .from('users')
+        .select('*')
+        .in('role', ['agent', 'seller'])
+        .neq('is_owner', true)
+        .order('created_at', { ascending: false });
     if(error) return showToast('Failed to load platform users: ' + error.message, 'error');
 
     const tbody = document.getElementById('userTableBody');
