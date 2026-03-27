@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 40px 0; }
+    .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    .header { background-color: #0f172a; padding: 30px; text-align: center; border-bottom: 4px solid #2563eb; }
+    .header h1 { color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+    .content { padding: 40px 30px; text-align: center; }
+    .content h2 { color: #1e293b; font-size: 22px; margin-top: 0; font-weight: 600; }
+    .content p { color: #64748b; font-size: 16px; line-height: 1.6; margin-bottom: 35px; }
+    .button { display: inline-block; padding: 16px 36px; background-color: #2563eb; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; letter-spacing: 0.5px; transition: background-color 0.2s; }
+    .button:hover { background-color: #1d4ed8; }
+    .footer { padding: 24px; text-align: center; border-top: 1px solid #e2e8f0; background-color: #f8fafc; }
+    .footer p { color: #94a3b8; font-size: 13px; margin: 5px 0; }
+    .invisible-link { font-size: 11px; color: #cbd5e1; word-break: break-all; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Vista Real Estate</h1>
+    </div>
+    <div class="content">
+      <h2>Confirm your email address</h2>
+      <p>Thank you for joining Vista, the premier destination for discovering luxury properties. Please verify your email address to permanently activate your account and gain full access to the dashboard.</p>
+      
+      <!-- SUPABASE NATIVE MAGIC LINK VARIABLE -->
+      <a href="{{ .ConfirmationURL }}" class="button">Verify My Account</a>
+
+      <p class="invisible-link">If the button doesn't work, copy and paste this link into your browser: <br>{{ .ConfirmationURL }}</p>
+    </div>
+    <div class="footer">
+      <p>If you did not request this account, you can safely ignore this email.</p>
+      <p>&copy; 2026 Vista Real Estate. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>
