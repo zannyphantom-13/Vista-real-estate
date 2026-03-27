@@ -49,6 +49,26 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
     document.getElementById('profPhone').textContent = userDoc.phone || 'N/A';
     document.getElementById('profRole').textContent = userDoc.role;
 
+    // ACCOUNT UPGRADE ROUTING
+    const upgradeSection = document.getElementById('upgradeSection');
+    if (upgradeSection) {
+        if (userDoc.role === 'buyer' || userDoc.role === 'renter') {
+            upgradeSection.style.display = 'block';
+            document.getElementById('upgradeDesc').textContent = 'Unlock the capability to violently list your own properties by natively upgrading exclusively to a Seller account.';
+            const uBtn = document.getElementById('upgradeBtn');
+            uBtn.textContent = 'Upgrade to Seller';
+            uBtn.onclick = () => window.triggerAccountUpgrade('seller');
+        } else if (userDoc.role === 'seller') {
+            upgradeSection.style.display = 'block';
+            document.getElementById('upgradeDesc').textContent = 'Are you a licensed real estate professional? Mathematically upgrade to an Agent tier natively to list comprehensive brokerage portfolios.';
+            const uBtn = document.getElementById('upgradeBtn');
+            uBtn.textContent = 'Upgrade to Agent';
+            uBtn.onclick = () => window.triggerAccountUpgrade('agent');
+        } else {
+            upgradeSection.style.display = 'none';
+        }
+    }
+
     // ==========================================
     // HYBRID WORKSPACE ROUTING
     // ==========================================
@@ -299,3 +319,31 @@ if (verifyForm) {
         }
     });
 }
+
+// Global scope function systematically orchestrating structural Role Tiers
+window.triggerAccountUpgrade = async function(targetRole) {
+    const btn = document.getElementById('upgradeBtn');
+    btn.textContent = 'Securing Upgrade...';
+    btn.disabled = true;
+
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        // When upgrading, strictly violently rip out verification variables to securely force re-submission of higher-tier paperwork limits
+        const payload = { 
+            role: targetRole,
+            verification_status: 'unsubmitted',
+            is_approved: false
+        };
+
+        const { error } = await supabase.from('users').update(payload).eq('id', session.user.id);
+        if (error) throw error;
+
+        showToast(`Flawlessly upgraded to ${targetRole}! Restarting bounds...`, 'success');
+        setTimeout(() => window.location.reload(), 1500);
+    } catch (err) {
+        showToast('Structural upgrade failed: ' + err.message, 'error');
+        btn.textContent = 'Retry Integration';
+        btn.disabled = false;
+    }
+};
