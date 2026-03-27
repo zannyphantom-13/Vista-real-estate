@@ -29,9 +29,34 @@
   <!-- MAIN CONTENT -->
   <main class="container" style="padding: 60px 20px;">
     
+    <!-- 0) UNIVERSAL PROFILE PORTAL (Visible for all roles) -->
+    <div id="profilePortal" style="display: none; max-width: 1000px; margin: 0 auto 32px auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-sm);">
+       <h1 style="margin-bottom: 8px;">My Dedicated Profile</h1>
+       <p style="color: var(--text-muted); margin-bottom: 32px;">Manage your personal identity on the Vista platform.</p>
+       
+       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+            <div style="padding: 24px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;">
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;"><i class="ph ph-user"></i> Full Name</p>
+                <div id="profName" style="font-weight: 700; font-size: 1.2rem;"></div>
+            </div>
+            <div style="padding: 24px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;">
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;"><i class="ph ph-envelope-simple"></i> Email</p>
+                <div id="profEmail" style="font-weight: 700; font-size: 1.1rem; word-break: break-all;"></div>
+            </div>
+            <div style="padding: 24px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;">
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;"><i class="ph ph-phone"></i> Contact Phone</p>
+                <div id="profPhone" style="font-weight: 700; font-size: 1.2rem;"></div>
+            </div>
+            <div style="padding: 24px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;">
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;"><i class="ph ph-identification-badge"></i> Account Type</p>
+                <div id="profRole" style="font-weight: 700; font-size: 1.2rem; text-transform: capitalize; color: var(--primary);"></div>
+            </div>
+       </div>
+    </div>
+
     <!-- 1) OWNER PORTAL: User Management -->
     <div id="ownerPortal" style="display: none; max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
-        <h1 style="margin-bottom: 8px;">Owner Portal</h1>
+        <h2 style="margin-bottom: 8px;">Owner Workspace</h2>
         <p style="color: var(--text-muted); margin-bottom: 32px;">Manage registering agents and explicitly grant physical upload permissions to the platform.</p>
         
         <div style="overflow-x: auto; border: 1px solid var(--border); border-radius: 12px;">
@@ -53,8 +78,8 @@
     </div>
 
     <!-- 2) AUTHORIZED AGENT: Upload Form -->
-    <div id="uploadPortal" style="display: none; max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
-      <h1 style="margin-bottom: 8px;">Upload New Property</h1>
+    <div id="uploadPortal" style="display: none; max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
+      <h2 style="margin-bottom: 8px;">Agent Workspace: Upload Property</h2>
       <p style="color: var(--text-muted); margin-bottom: 32px;">Fill in the details below to rigidly list a new property on Vista.</p>
       
       <form id="uploadForm" class="auth-form">
@@ -133,45 +158,24 @@
           <input type="file" id="image" required accept="image/*" style="width:100%; padding: 10px; background: #f8fafc; border: 1px dashed var(--border); border-radius: 8px; cursor: pointer;">
         </div>
 
-        <button type="submit" class="btn btn-primary w-full" id="uploadBtn" style="margin-top: 32px;">Publish Listing</button>
+        <button type="submit" class="btn btn-primary w-full" id="uploadBtn" style="margin-top: 32px;">Publish Web Listing</button>
       </form>
     </div>
 
     <!-- 3) PENDING AGENT: Wait Screen -->
-    <div id="pendingPortal" style="display: none; max-width: 600px; margin: 0 auto; text-align: center; background: white; padding: 60px 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
+    <div id="pendingPortal" style="display: none; max-width: 1000px; margin: 0 auto; text-align: center; background: white; padding: 60px 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
        <i class="ph ph-lock-key" style="font-size: 64px; color: var(--primary); margin-bottom: 20px;"></i>
-       <h1 style="margin-bottom: 12px;">Verification Pending</h1>
+       <h2 style="margin-bottom: 12px;">Agent Workspace Locked</h2>
        <p style="color: var(--text-muted); line-height: 1.6;">Your Agent account is currently locked and actively under review by the Vista administration team. Once your licenses and identity are securely verified by the owner, your physical upload rights will be permanently granted here.</p>
     </div>
 
-    <!-- 4) PROFILE PORTAL: Normal Buyers/Renters/Sellers -->
-    <div id="profilePortal" style="display: none; max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
-       <h1 style="margin-bottom: 8px;">My Profile</h1>
-       <p style="color: var(--text-muted); margin-bottom: 32px;">Manage your personal identity on the Vista platform.</p>
-       
-       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div style="padding: 24px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;">
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;"><i class="ph ph-user"></i> Full Name</p>
-                <div id="profName" style="font-weight: 700; font-size: 1.2rem;"></div>
-            </div>
-            <div style="padding: 24px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;">
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;"><i class="ph ph-envelope-simple"></i> Email Address</p>
-                <div id="profEmail" style="font-weight: 700; font-size: 1.2rem;"></div>
-            </div>
-            <div style="padding: 24px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;">
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;"><i class="ph ph-phone"></i> Contact Phone</p>
-                <div id="profPhone" style="font-weight: 700; font-size: 1.2rem;"></div>
-            </div>
-            <div style="padding: 24px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;">
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;"><i class="ph ph-identification-badge"></i> Account Type</p>
-                <div id="profRole" style="font-weight: 700; font-size: 1.2rem; text-transform: capitalize; color: var(--primary);"></div>
-            </div>
-       </div>
-
-       <div style="margin-top: 40px; text-align: center; border-top: 1px dashed var(--border); padding-top: 40px;">
+    <!-- 4) CONSUMER WORKSPACE: Saved Homes -->
+    <div id="consumerPortal" style="display: none; max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg);">
+       <div style="text-align: center; padding: 40px 0;">
             <i class="ph ph-house" style="font-size: 48px; color: var(--border); margin-bottom: 16px;"></i>
-            <h3 style="color: var(--text-main);">Saved Homes</h3>
-            <p style="color: var(--text-muted);">You have not saved any properties yet.</p>
+            <h3 style="color: var(--text-main);">My Saved Homes</h3>
+            <p style="color: var(--text-muted);">You have not saved any properties yet. Go back to search to start liking homes!</p>
+            <a href="index.html" class="btn btn-primary" style="margin-top: 24px;">Browse Homes</a>
        </div>
     </div>
 

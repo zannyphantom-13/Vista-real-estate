@@ -25,8 +25,15 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
     // Unhide the main body so styling flashes properly
     adminBody.style.display = 'block';
 
+    // UNIVERSAL: Render Profile UI for EVERYONE natively
+    document.getElementById('profilePortal').style.display = 'block';
+    document.getElementById('profName').textContent = userDoc.full_name || 'Anonymous';
+    document.getElementById('profEmail').textContent = userDoc.email || 'N/A';
+    document.getElementById('profPhone').textContent = userDoc.phone || 'N/A';
+    document.getElementById('profRole').textContent = userDoc.role;
+
     // ==========================================
-    // ROLE BASED ACCESS CONTROL (RBAC) ROUTING
+    // HYBRID WORKSPACE ROUTING
     // ==========================================
     if (userDoc.is_owner === true) {
         // Supreme Admin Level
@@ -44,13 +51,8 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
     } else {
         // Consumer / Standard User Level (Buyer, Renter, Seller)
-        profilePortal.style.display = 'block';
-        
-        // Hydrate profile data
-        document.getElementById('profName').textContent = userDoc.full_name || 'Anonymous';
-        document.getElementById('profEmail').textContent = userDoc.email || 'N/A';
-        document.getElementById('profPhone').textContent = userDoc.phone || 'N/A';
-        document.getElementById('profRole').textContent = userDoc.role;
+        const consumerPortal = document.getElementById('consumerPortal');
+        if(consumerPortal) consumerPortal.style.display = 'block';
     }
 });
 
