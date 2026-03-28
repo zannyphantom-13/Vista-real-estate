@@ -312,20 +312,26 @@ if (startRecordingBtn) {
             startRecordingBtn.textContent = 'Please SMARTLY SMILE to prove identity liveness... 😊';
             startRecordingBtn.style.backgroundColor = '#f59e0b';
             
+            let livenessStage = 'SMILE';
+
             // LIVENESS DETECTION ENGINE
             const livenessInterval = setInterval(async () => {
                 const detection = await faceapi.detectSingleFace(videoEl).withFaceLandmarks().withFaceExpressions().withFaceDescriptor();
                 
                 if (detection) {
-                    // Check if Happy expression exceeds 85% mathematically
-                    if (detection.expressions.happy > 0.85) {
+                    if (livenessStage === 'SMILE' && detection.expressions.happy > 0.85) {
+                        livenessStage = 'SURPRISED';
+                        startRecordingBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Step 2: Now look SURPRISED (Open Mouth Wide)! 😮';
+                        startRecordingBtn.style.backgroundColor = '#8b5cf6';
+                    }
+                    else if (livenessStage === 'SURPRISED' && detection.expressions.surprised > 0.85) {
                         clearInterval(livenessInterval);
                         liveWebcamDescriptor = detection.descriptor; // Save mathematical facial hash!
                         
-                        startRecordingBtn.innerHTML = '<i class="ph-fill ph-check-circle"></i> Liveness Confirmed! Recording 5s loop...';
+                        startRecordingBtn.innerHTML = '<i class="ph-fill ph-check-circle"></i> Liveness Confirmed! Recording 10s loop...';
                         startRecordingBtn.style.backgroundColor = '#10b981';
                         
-                        // Execute original 5-second MediaRecorder natively
+                        // Execute original MediaRecorder natively
                         const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
                         const chunks = [];
                         recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
@@ -335,12 +341,14 @@ if (startRecordingBtn) {
                             stream.getTracks().forEach(t => t.stop());
                             
                             startRecordingBtn.style.display = 'none';
-                            document.getElementById('videoFeedback').style.display = 'block';
+                            const feedback = document.getElementById('videoFeedback');
+                            feedback.innerHTML = '<i class="ph-fill ph-check-circle"></i> 10-Second Biometric Scan Securely Compiled';
+                            feedback.style.display = 'block';
                             document.getElementById('videoBlobUrl').value = 'secure_pipeline'; // Bypass required flawlessly
                         };
                         
                         recorder.start();
-                        setTimeout(() => recorder.stop(), 5000); // 5 seconds strictly
+                        setTimeout(() => recorder.stop(), 10000); // 10 seconds strictly
                     }
                 }
             }, 300); // Poll every 300ms cleanly
