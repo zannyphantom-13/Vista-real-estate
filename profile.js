@@ -186,6 +186,9 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                     }
                 } else if (vStatus === 'pending') {
                     pendingPortal.style.display = 'block';
+                } else if (vStatus === 'suspended') {
+                    const suspendedPortal = document.getElementById('suspendedPortal');
+                    if (suspendedPortal) suspendedPortal.style.display = 'block';
                 }
             }
         }

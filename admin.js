@@ -81,6 +81,8 @@ async function loadUserManagement() {
             badgeColor = '#3b82f6'; badgeText = 'Pending Review';
         } else if (vStatus === 'rejected') {
             badgeColor = '#ef4444'; badgeText = 'Rejected';
+        } else if (vStatus === 'suspended') {
+            badgeColor = '#f59e0b'; badgeText = 'Suspended';
         }
 
         // Compute Role Tag Aesthetics mapped for Supreme Obsidian modes natively
@@ -95,7 +97,17 @@ async function loadUserManagement() {
             if (vStatus === 'pending') {
                 actionBtn = `<button class="btn btn-primary" style="padding: 6px 16px; font-size: 0.85rem;" onclick="openReviewModal('${u.id}')">Review Application</button>`;
             } else if (isApproved) {
-                actionBtn = `<button class="btn btn-secondary" style="padding: 6px 16px; font-size: 0.85rem; border-color: #ef4444; color: #ef4444;" onclick="processApplication('${u.id}', false)">Revoke Access</button>`;
+                actionBtn = `
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-color: #f59e0b; color: #f59e0b; background: transparent;" title="Temporarily Suspend" onclick="processApplication('${u.id}', false, 'suspended')"><i class="ph ph-pause"></i> Suspend</button>
+                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-color: #ef4444; color: #ef4444; background: transparent;" title="Permanently Revoke" onclick="processApplication('${u.id}', false, 'rejected')"><i class="ph ph-x-circle"></i> Revoke</button>
+                </div>`;
+            } else if (vStatus === 'suspended') {
+                actionBtn = `
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-color: #10b981; color: #10b981; background: transparent;" onclick="processApplication('${u.id}', true, 'approved')"><i class="ph ph-play"></i> Restore</button>
+                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-color: #ef4444; color: #ef4444; background: transparent;" onclick="processApplication('${u.id}', false, 'rejected')"><i class="ph ph-x-circle"></i> Revoke</button>
+                </div>`;
             } else if (vStatus === 'rejected') {
                 actionBtn = `<span style="color: #ef4444; font-size: 0.85rem; font-weight: 500;">Rejected Status</span>`;
             }
@@ -155,12 +167,12 @@ window.openReviewModal = function(userId) {
     vidBtn.style.display = u.video_url ? 'block' : 'none';
     
     // Inject the exact function triggers instantly to bypass scope
-    document.getElementById('confirmApproveBtn').onclick = () => window.processApplication(userId, true);
-    document.getElementById('confirmRejectBtn').onclick = () => window.processApplication(userId, false);
+    document.getElementById('confirmApproveBtn').onclick = () => window.processApplication(userId, true, 'approved');
+    document.getElementById('confirmRejectBtn').onclick = () => window.processApplication(userId, false, 'rejected');
 };
 
-window.processApplication = async function(userId, isApproved) {
-    const status = isApproved ? 'approved' : 'rejected';
+window.processApplication = async function(userId, isApproved, customStatus) {
+    const status = customStatus ? customStatus : (isApproved ? 'approved' : 'rejected');
     const payload = { verification_status: status, is_approved: isApproved };
     
     const { error } = await supabase.from('users').update(payload).eq('id', userId);
