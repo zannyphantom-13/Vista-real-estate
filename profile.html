@@ -167,10 +167,16 @@
           </div>
         </div>
 
-        <!-- Image URL -->
-        <div class="input-group" style="margin-top: 20px;">
-          <label for="imageUrl">Property Image High-Res URL</label>
-          <input type="url" id="imageUrl" required placeholder="https://images.unsplash..." style="width:100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;">
+        <!-- Image URL or Upload -->
+        <div class="resp-grid-2" style="margin-top: 20px;">
+            <div class="input-group">
+                <label for="imageUpload">Upload Property Image (File)</label>
+                <input type="file" id="imageUpload" accept="image/*" style="width:100%; padding: 10px; background: #f8fafc; border: 1px dashed var(--border); border-radius: 8px; cursor: pointer;">
+            </div>
+            <div class="input-group">
+                <label for="imageUrl">OR Paste Image URL</label>
+                <input type="url" id="imageUrl" placeholder="HTTPS secure image link..." style="width:100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;">
+            </div>
         </div>
 
         <button type="submit" class="btn btn-primary w-full" id="uploadBtn" style="margin-top: 32px;">Publish Web Listing</button>
