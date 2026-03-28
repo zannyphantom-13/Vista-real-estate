@@ -1,0 +1,20 @@
+name: Supabase Keep Alive
+
+on:
+  schedule:
+    # Runs at 00:00 every 2nd day (well within the 3-day window)
+    - cron: '0 0 */2 * *'
+  # Allow manual testing from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hit Supabase REST API
+        run: |
+          echo "Waking up Supabase instance..."
+          curl -s -X GET "https://yttkrvducgxvfoousblw.supabase.co/rest/v1/properties?limit=1" \
+            -H "apikey: sb_publishable_ZU4pS-xH46wzwPESHEjY9A_VO3bKPjA" \
+            -H "Authorization: Bearer sb_publishable_ZU4pS-xH46wzwPESHEjY9A_VO3bKPjA"
+          echo "Ping completed natively!"
