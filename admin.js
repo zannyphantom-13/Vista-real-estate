@@ -58,12 +58,20 @@ async function loadUserManagement() {
     const tbody = document.getElementById('userTableBody');
     tbody.innerHTML = '';
 
+    let pendingCount = 0;
+    let sellerCount = 0;
+    let agentCount = 0;
+
     users.forEach(u => {
         const vStatus = u.verification_status || 'unsubmitted';
         const isApproved = u.is_approved === true;
         
+        if (vStatus === 'pending') pendingCount++;
+        if (isApproved && u.role === 'seller') sellerCount++;
+        if (isApproved && u.role === 'agent') agentCount++;
+        
         // Compute Label Aesthetics smartly
-        let badgeColor = '#94a3b8';
+        let badgeColor = '#64748b'; // darker gray for dark mode
         let badgeText = 'Unsubmitted';
         if (isApproved || vStatus === 'approved') {
             badgeColor = '#10b981'; badgeText = 'Approved';
@@ -74,7 +82,7 @@ async function loadUserManagement() {
         }
 
         // Action button is strictly dynamically routed if they have submitted documentation
-        let actionBtn = `<span style="color: var(--border); font-size: 0.85rem;">No File Action</span>`;
+        let actionBtn = `<span style="color: #64748b; font-size: 0.85rem;">No File Action</span>`;
         if (u.role === 'agent' || u.role === 'seller') {
             if (vStatus === 'pending') {
                 actionBtn = `<button class="btn btn-primary" style="padding: 6px 16px; font-size: 0.85rem;" onclick="openReviewModal('${u.id}', '${u.full_name}', '${u.license_number}', '${u.brokerage_name}', '${u.id_url}')">Review Application</button>`;
@@ -87,16 +95,21 @@ async function loadUserManagement() {
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td style="padding: 16px; border-bottom: 1px solid var(--border); font-weight: 500;">${u.full_name || 'N/A'}</td>
-            <td style="padding: 16px; border-bottom: 1px solid var(--border); text-transform: capitalize; color: var(--text-muted);">${u.role}</td>
-            <td style="padding: 16px; border-bottom: 1px solid var(--border); font-family: monospace;">${u.phone || 'N/A'}</td>
-            <td style="padding: 16px; border-bottom: 1px solid var(--border);">
+            <td style="padding: 16px; border-bottom: 1px solid #334155; font-weight: 500;">${u.full_name || 'N/A'}</td>
+            <td style="padding: 16px; border-bottom: 1px solid #334155; text-transform: capitalize; color: #94a3b8;">${u.role}</td>
+            <td style="padding: 16px; border-bottom: 1px solid #334155; font-family: monospace;">${u.phone || 'N/A'}</td>
+            <td style="padding: 16px; border-bottom: 1px solid #334155;">
                 <span style="background: ${badgeColor}20; color: ${badgeColor}; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">${badgeText}</span>
             </td>
-            <td style="padding: 16px; border-bottom: 1px solid var(--border);">${actionBtn}</td>
+            <td style="padding: 16px; border-bottom: 1px solid #334155;">${actionBtn}</td>
         `;
         tbody.appendChild(tr);
     });
+
+    // Hydrate HUD Stats physically
+    document.getElementById('statPending').textContent = pendingCount;
+    document.getElementById('statSellers').textContent = sellerCount;
+    document.getElementById('statAgents').textContent = agentCount;
 }
 
 // Global scope function for opening securely the Application Review parameters
