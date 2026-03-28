@@ -173,6 +173,8 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
             if (userDoc.is_approved === true) {
                 const up = document.getElementById('uploadPortal');
                 if (up) up.style.display = 'block';
+                const mlp = document.getElementById('myListingsPortal');
+                if (mlp) mlp.style.display = 'block';
                 
                 const badgeContainer = document.getElementById('verificationBadges');
                 if (badgeContainer) badgeContainer.innerHTML = `<i class="ph-fill ph-seal-check" style="color: #3b82f6;" title="Verified Identity"></i>`;
@@ -220,6 +222,8 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
             if (userDoc.is_approved === true) {
                 const up = document.getElementById('uploadPortal');
                 if (up) up.style.display = 'block';
+                const mlp = document.getElementById('myListingsPortal');
+                if (mlp) mlp.style.display = 'block';
                 const badgeContainer = document.getElementById('verificationBadges');
                 if (badgeContainer) badgeContainer.innerHTML = `<i class="ph-fill ph-seal-check" style="color: #3b82f6;" title="Verified Identity"></i><i class="ph-fill ph-briefcase" style="color: #f59e0b;" title="Verified Real Estate License"></i>`;
             } else {
@@ -650,3 +654,133 @@ window.triggerAccountUpgrade = async function(targetRole) {
         btn.disabled = false;
     }
 };
+
+// ==========================================
+// MY LISTINGS DASHBOARD (SELLER / AGENT)
+// ==========================================
+let myProperties = [];
+
+async function loadMyListings() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    
+    try {
+        const { data, error } = await supabase.from('properties')
+                                    .select('*')
+                                    .eq('user_id', session.user.id)
+                                    .order('created_at', { ascending: false });
+        if (error) throw error;
+        
+        myProperties = data || [];
+        renderMyListings(myProperties);
+    } catch(err) {
+        console.error("Failed to load listings:", err);
+        const grid = document.getElementById('myListingsGrid');
+        if(grid) grid.innerHTML = '<div style="grid-column:1/-1; color:var(--danger)">Error loading listings.</div>';
+    }
+}
+
+function renderMyListings(list) {
+    const grid = document.getElementById('myListingsGrid');
+    if (!grid) return;
+    
+    if (list.length === 0) {
+        grid.innerHTML = '<div style="grid-column: 1/-1; padding: 40px; text-align: center; color: var(--text-muted); background: #f8fafc; border-radius: 12px;">You haven\'t listed any properties yet. Use the upload portal above.</div>';
+        return;
+    }
+    
+    grid.innerHTML = list.map(p => `
+        <div style="border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: white; display: flex; flex-direction: column;">
+            <div style="height: 160px; overflow: hidden; position: relative;">
+                <img src="${p.image}" style="width: 100%; height: 100%; object-fit: cover;">
+                <span class="badge" style="position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem;">${p.status.toUpperCase()}</span>
+            </div>
+            <div style="padding: 16px; flex-grow: 1; display: flex; flex-direction: column;">
+                <h3 style="font-size: 1.1rem; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.title}</h3>
+                <div style="color: var(--primary); font-weight: 700; margin-bottom: 8px;">$${Number(p.price).toLocaleString()}</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;"><i class="ph ph-map-pin"></i> ${p.address}</div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-bottom: auto;">Listed: ${new Date(p.created_at).toLocaleDateString()}</div>
+                <div style="margin-top: 16px;">
+                    <button class="btn btn-secondary w-full" onclick="openEditProperty('${p.id}')"><i class="ph ph-pencil-simple"></i> Edit Property</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+const searchInput = document.getElementById('myListingsSearch');
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        const filtered = myProperties.filter(p => 
+            p.title.toLowerCase().includes(query) || 
+            p.address.toLowerCase().includes(query) ||
+            (p.type && p.type.toLowerCase().includes(query))
+        );
+        renderMyListings(filtered);
+    });
+}
+
+window.openEditProperty = function(id) {
+    const p = myProperties.find(x => x.id === id);
+    if(!p) return;
+    
+    document.getElementById('editPropId').value = p.id;
+    document.getElementById('editTitle').value = p.title;
+    document.getElementById('editPrice').value = p.price;
+    document.getElementById('editAddress').value = p.address;
+    document.getElementById('editDesc').value = p.description || '';
+    document.getElementById('editBeds').value = p.beds;
+    document.getElementById('editBaths').value = p.baths;
+    document.getElementById('editStatus').value = p.status;
+    document.getElementById('editType').value = p.type || '';
+    document.getElementById('editImage').value = p.image;
+    
+    document.getElementById('editPropertyModal').style.display = 'block';
+};
+
+const editPropertyForm = document.getElementById('editPropertyForm');
+if (editPropertyForm) {
+    editPropertyForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('editSubmitBtn');
+        btn.textContent = 'Saving...';
+        btn.disabled = true;
+        
+        const id = document.getElementById('editPropId').value;
+        const payload = {
+            title: document.getElementById('editTitle').value.trim(),
+            price: Number(document.getElementById('editPrice').value),
+            status: document.getElementById('editStatus').value,
+            address: document.getElementById('editAddress').value.trim(),
+            description: document.getElementById('editDesc').value.trim(),
+            type: document.getElementById('editType').value.trim() || null,
+            beds: Number(document.getElementById('editBeds').value),
+            baths: Number(document.getElementById('editBaths').value),
+            image: document.getElementById('editImage').value.trim()
+        };
+        
+        try {
+            const { error } = await supabase.from('properties').update(payload).eq('id', id);
+            if (error) throw error;
+            
+            showToast('Property brilliantly updated!', 'success');
+            document.getElementById('editPropertyModal').style.display = 'none';
+            await loadMyListings(); // Refresh locally instantly
+        } catch(err) {
+            showToast('Failed to update: ' + err.message, 'error');
+        } finally {
+            btn.textContent = 'Save Changes to Live Network';
+            btn.disabled = false;
+        }
+    });
+}
+
+// Ensure the My Listings sync accurately executes intrinsically dynamically if structurally permitted
+setTimeout(() => {
+    if (window.currentUserDoc && window.currentUserDoc.is_approved === true) {
+        if (window.currentUserDoc.role === 'agent' || window.currentUserDoc.role === 'seller') {
+            loadMyListings();
+        }
+    }
+}, 1000);
