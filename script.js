@@ -119,7 +119,8 @@ function renderListings() {
         <img src="${p.image}" alt="${p.title}" loading="lazy"/>
         <div class="card-badges">
           ${p.isNew ? '<span class="badge new">New</span>' : ''}
-          <span class="badge for-sale">For ${p.status}</span>
+          <span class="badge for-sale">For ${p.status.toUpperCase()}</span>
+          ${p.type ? `<span class="badge" style="background: rgba(0,0,0,0.65); color: white;">${p.type}</span>` : ''}
         </div>
         <button class="card-fav" title="Save Home"><i class="ph ph-heart"></i></button>
       </div>
@@ -131,12 +132,15 @@ function renderListings() {
           <span class="feature"><i class="ph ph-shower"></i> ${p.baths} Baths</span>
           <span class="feature"><i class="ph ph-squares-four"></i> ${p.sqft.toLocaleString()} sqft</span>
         </div>
-        <div class="card-footer">
-          <div class="agent">
-            <img src="${p.agent}" alt="Agent"/>
-            <span>Vista Agent</span>
+        <div class="card-footer" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px;">
+          <div class="agent" style="display: flex; align-items: center; gap: 8px;">
+            <img src="${p.agent_avatar}" alt="${p.agent_name}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #e2e8f0;"/>
+            <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-main); display: flex; align-items: center; gap: 4px;">
+                ${p.agent_name} 
+                ${p.is_approved ? '<i class="ph-fill ph-seal-check" style="color: #3b82f6; font-size: 1rem;" title="Verified Identity"></i>' : ''}
+            </span>
           </div>
-          <span class="posted-date">${timeAgo(p.date)}</span>
+          <span class="posted-date" style="font-size: 0.8rem; color: var(--text-muted);">${timeAgo(p.date)}</span>
         </div>
       </div>
     `;
@@ -291,21 +295,35 @@ const initApp = async () => {
         if (!data || data.length === 0) {
             properties = [];
         } else {
-            properties = data.map(doc => ({
-                id: doc.id,
-                title: doc.title,
-                address: doc.address,
-                price: doc.price,
-                beds: doc.beds,
-                baths: doc.baths,
-                sqft: doc.sqft,
-                type: doc.type,
-                status: doc.status,
-                isNew: doc.is_new,
-                image: doc.image,
-                agent: doc.agent_avatar || `https://ui-avatars.com/api/?name=Agent&background=random`,
-                date: doc.created_at
-            }));
+            let usersMap = {};
+            const userIds = [...new Set(data.map(d => d.user_id).filter(Boolean))];
+            if (userIds.length > 0) {
+                const { data: usersData } = await supabase.from('users').select('id, full_name, profile_url, is_approved').in('id', userIds);
+                if (usersData) {
+                    usersData.forEach(u => { usersMap[u.id] = u; });
+                }
+            }
+
+            properties = data.map(doc => {
+                const author = usersMap[doc.user_id] || {};
+                return {
+                    id: doc.id,
+                    title: doc.title,
+                    address: doc.address,
+                    price: doc.price,
+                    beds: doc.beds,
+                    baths: doc.baths,
+                    sqft: doc.sqft,
+                    type: doc.type,
+                    status: doc.status,
+                    isNew: doc.is_new,
+                    image: doc.image,
+                    agent_avatar: author.profile_url || `https://ui-avatars.com/api/?name=${author.full_name || 'Agent'}&background=random`,
+                    agent_name: author.full_name || 'Vista Agent',
+                    is_approved: author.is_approved || false,
+                    date: doc.created_at
+                };
+            });
         }
         renderListings();
     } catch (error) {

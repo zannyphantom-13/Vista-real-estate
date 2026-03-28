@@ -132,9 +132,9 @@
       <div class="contact-card">
         <h3 style="margin-bottom: 24px; font-size: 1.25rem;">Contact Agent</h3>
         <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
-          <img id="agentImg" src="" alt="Agent" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover;">
+          <img id="agentImg" src="https://ui-avatars.com/api/?name=Agent" alt="Agent" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0;">
           <div>
-            <h4 style="font-size: 1.1rem;" id="agentName">Vista Agent</h4>
+            <h4 style="font-size: 1.1rem; display: flex; align-items: center; gap: 6px;" id="agentName">Vista Agent</h4>
             <p style="color: var(--text-muted); font-size: 0.9rem;">Listing Agent</p>
           </div>
         </div>
@@ -190,7 +190,17 @@
                     tagsBox.innerHTML = data.tags.map(t => `<span style="background: var(--border); padding: 6px 16px; border-radius: 99px; font-size: 0.85rem; font-weight: 500;">${t}</span>`).join('');
                 }
                 
-                document.getElementById('agentImg').src = data.agent || `https://ui-avatars.com/api/?name=Agent&background=random`;
+                document.getElementById('agentImg').src = data.agent_avatar || `https://ui-avatars.com/api/?name=Agent&background=random`;
+                
+                if (data.user_id) {
+                    supabase.from('users').select('full_name, profile_url, is_approved').eq('id', data.user_id).single().then(({ data: userData, error: uErr }) => {
+                        if (userData && !uErr) {
+                            const badgeHtml = userData.is_approved ? '<i class="ph-fill ph-seal-check" style="color: #3b82f6; font-size: 1.2rem;" title="Verified Agent"></i>' : '';
+                            document.getElementById('agentName').innerHTML = `${userData.full_name || 'Vista Agent'} ${badgeHtml}`;
+                            document.getElementById('agentImg').src = userData.profile_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.full_name || 'Agent')}&background=random`;
+                        }
+                    });
+                }
                 
                 let priceText = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(data.price);
                 if(data.status === 'rent') priceText += ' <span style="font-size: 1rem; color: var(--text-muted); font-weight: 400;">/mo</span>';
@@ -198,6 +208,7 @@
 
                 let badges = `<span class="badge for-sale" style="padding: 6px 12px; font-size: 0.85rem; border-radius: 6px; background: var(--primary); color: white; display: inline-block;">For ${data.status.toUpperCase()}</span>`;
                 if(data.isNew) badges += `<span class="badge new" style="padding: 6px 12px; font-size: 0.85rem; border-radius: 6px; background: #e0e7ff; color: var(--primary); display: inline-block; margin-left:8px;">NEW CONSTRUCTION</span>`;
+                if(data.type) badges += `<span class="badge type" style="padding: 6px 12px; font-size: 0.85rem; border-radius: 6px; background: #f3f4f6; color: var(--text-main); font-weight: 600; display: inline-block; margin-left:8px; border: 1px solid var(--border);">${data.type}</span>`;
                 document.getElementById('propBadges').innerHTML = badges;
 
                 document.getElementById('propInfo').style.display = 'block';
