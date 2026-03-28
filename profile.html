@@ -116,19 +116,30 @@
           </div>
         </div>
 
+        <div class="input-group" style="margin-top: 20px;">
+          <label for="description">Detailed Description</label>
+          <textarea id="description" required rows="4" placeholder="Beautiful architectural detailing..." style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; resize:vertical;"></textarea>
+        </div>
+
+        <div class="input-group" style="margin-top: 20px;">
+          <label for="features">Key Features (Comma Separated)</label>
+          <input type="text" id="features" required placeholder="e.g. Pool, Smart Home, Garage" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px;">
+        </div>
+
         <!-- Categorization -->
         <div class="resp-grid-3" style="margin-top: 20px;">
           <div class="input-group">
             <label for="type">Property Type</label>
-            <div class="select-wrapper">
-              <select id="type" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius);">
-                <option value="house">House</option>
-                <option value="apartment">Apartment</option>
-                <option value="townhouse">Townhouse</option>
-                <option value="villa">Villa</option>
-              </select>
-              <i class="ph ph-caret-down"></i>
-            </div>
+            <input type="text" list="typeList" id="type" required placeholder="Type or Select..." style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius);">
+            <datalist id="typeList">
+                <option value="House">
+                <option value="Apartment">
+                <option value="Townhouse">
+                <option value="Villa">
+                <option value="Penthouse">
+                <option value="Condo">
+                <option value="Estate">
+            </datalist>
           </div>
           
           <div class="input-group">
@@ -152,10 +163,10 @@
           </div>
         </div>
 
-        <!-- Image Upload -->
+        <!-- Image URL -->
         <div class="input-group" style="margin-top: 20px;">
-          <label for="image">Property Image</label>
-          <input type="file" id="image" required accept="image/*" style="width:100%; padding: 10px; background: #f8fafc; border: 1px dashed var(--border); border-radius: 8px; cursor: pointer;">
+          <label for="imageUrl">Property Image High-Res URL</label>
+          <input type="url" id="imageUrl" required placeholder="https://images.unsplash..." style="width:100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;">
         </div>
 
         <button type="submit" class="btn btn-primary w-full" id="uploadBtn" style="margin-top: 32px;">Publish Web Listing</button>

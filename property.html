@@ -120,9 +120,12 @@
       </div>
 
       <h2>About this home</h2>
-      <p style="color: var(--text-main); line-height: 1.7; margin-top: 16px;">
-        This beautiful property offers a luxurious lifestyle in a highly sought-after neighborhood. Featuring expansive living spaces, modern appliances, and stunning architectural details, it is the perfect place to call home. Schedule a tour today to experience everything this home has to offer.
+      <p id="propDesc" style="color: var(--text-main); line-height: 1.7; margin-top: 16px;">
+        Loading structural details...
       </p>
+      
+      <h3 style="margin-top: 32px; margin-bottom: 16px;">Key Features</h3>
+      <div id="propTags" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
     </div>
 
     <aside class="contact-sidebar">
@@ -179,6 +182,14 @@
                 document.getElementById('propBeds').textContent = data.beds;
                 document.getElementById('propBaths').textContent = data.baths;
                 document.getElementById('propSqft').textContent = data.sqft.toLocaleString();
+                
+                document.getElementById('propDesc').textContent = data.description || 'No detailed description securely configured for this explicit structural real estate.';
+                
+                const tagsBox = document.getElementById('propTags');
+                if (data.tags && Array.isArray(data.tags)) {
+                    tagsBox.innerHTML = data.tags.map(t => `<span style="background: var(--border); padding: 6px 16px; border-radius: 99px; font-size: 0.85rem; font-weight: 500;">${t}</span>`).join('');
+                }
+                
                 document.getElementById('agentImg').src = data.agent || `https://ui-avatars.com/api/?name=Agent&background=random`;
                 
                 let priceText = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(data.price);
