@@ -79,12 +79,17 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
             upgradeEnabled = true;
             uBtn.onclick = () => window.triggerAccountUpgrade('seller');
         } else if (userDoc.role === 'seller') {
-            upgradeSection.style.display = 'block';
-            document.getElementById('upgradeDesc').textContent = 'Are you a licensed real estate professional? Mathematically upgrade to an Agent tier natively to list comprehensive brokerage portfolios.';
-            const uBtn = document.getElementById('upgradeBtn');
-            uBtn.textContent = 'Upgrade to Agent';
-            upgradeEnabled = true;
-            uBtn.onclick = () => window.triggerAccountUpgrade('agent');
+            const vStat = userDoc.verification_status || 'unsubmitted';
+            if (vStat === 'agent_unsubmitted' || vStat === 'agent_pending' || vStat === 'agent_rejected') {
+                upgradeSection.style.display = 'none';
+            } else {
+                upgradeSection.style.display = 'block';
+                document.getElementById('upgradeDesc').textContent = 'Are you a licensed real estate professional? Mathematically upgrade to an Agent tier natively to list comprehensive brokerage portfolios.';
+                const uBtn = document.getElementById('upgradeBtn');
+                uBtn.textContent = 'Upgrade to Agent';
+                upgradeEnabled = true;
+                uBtn.onclick = () => window.triggerAccountUpgrade('agent');
+            }
         } else {
             upgradeSection.style.display = 'none';
         }
@@ -145,6 +150,8 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
     if(consumerPortal) consumerPortal.style.display = 'block';
 
         if (userDoc.role === 'agent' || userDoc.role === 'seller') {
+            const vStatus = userDoc.verification_status || 'unsubmitted';
+
             if (userDoc.is_approved === true) {
                 uploadPortal.style.display = 'block';
                 
@@ -157,10 +164,37 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                         badgeContainer.innerHTML = `<i class="ph-fill ph-seal-check" style="color: #3b82f6;" title="Verified Identity"></i><i class="ph-fill ph-seal-check" style="color: #f59e0b;" title="Verified Real Estate License"></i>`;
                     }
                 }
+
+                // DYNAMIC TIERED UPLOAD BYPASS: Upgrading Sellers naturally natively intelligently functionally structurally smoothly magically creatively smoothly safely accurately flawlessly mathematically
+                if (vStatus === 'agent_unsubmitted' || vStatus === 'agent_pending' || vStatus === 'agent_rejected') {
+                     if (vStatus === 'agent_unsubmitted' || vStatus === 'agent_rejected') {
+                         const unverifiedPortal = document.getElementById('unverifiedPortal');
+                         if(unverifiedPortal) unverifiedPortal.style.display = 'block';
+                         document.getElementById('agentFields').style.display = 'block';
+                         
+                         if (vStatus === 'agent_rejected') document.getElementById('rejectedWarning').style.display = 'block';
+
+                         const idUploadGroupFront = document.getElementById('idUploadFront')?.parentElement;
+                         const idUploadGroupBack = document.getElementById('idUploadBack')?.parentElement;
+                         const biometricBox = document.getElementById('startRecordingBtn')?.parentElement;
+
+                         if(idUploadGroupFront) idUploadGroupFront.style.display = 'none';
+                         if(idUploadGroupBack) idUploadGroupBack.style.display = 'none';
+                         if(biometricBox) biometricBox.style.display = 'none';
+                        
+                         document.getElementById('idUploadFront').required = false;
+                         document.getElementById('idUploadBack').required = false;
+                        
+                         const titleEl = document.querySelector('#unverifiedPortal h2');
+                         const pEl = document.querySelector('#unverifiedPortal p');
+                         if(titleEl) titleEl.textContent = 'Agent License Required';
+                         if(pEl) pEl.textContent = 'You have already verified your identity securely as a Seller. Please supply your physical Real Estate credentials below to formally unlock full Agent capabilities.';
+                     } else if (vStatus === 'agent_pending') {
+                         if(pendingPortal) pendingPortal.style.display = 'block';
+                     }
+                }
+
             } else {
-                // Determine verification phase
-                const vStatus = userDoc.verification_status || 'unsubmitted';
-                
                 if (vStatus === 'unsubmitted' || vStatus === 'rejected') {
                     if(!document.getElementById('unverifiedPortal')) return;
                     document.getElementById('unverifiedPortal').style.display = 'block';
@@ -171,24 +205,6 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                     document.getElementById('agentFields').style.display = (userDoc.role === 'agent') ? 'block' : 'none';
                     if (vStatus === 'rejected') document.getElementById('rejectedWarning').style.display = 'block';
 
-                    // DYNAMIC TIERED UPLOAD BYPASS: Upgrading Sellers don't resubmit ID cards natively
-                    if (userDoc.role === 'agent' && userDoc.id_url) {
-                        const idUploadGroupFront = document.getElementById('idUploadFront')?.parentElement;
-                        const idUploadGroupBack = document.getElementById('idUploadBack')?.parentElement;
-                        const biometricBox = document.getElementById('startRecordingBtn')?.parentElement;
-
-                        if(idUploadGroupFront) idUploadGroupFront.style.display = 'none';
-                        if(idUploadGroupBack) idUploadGroupBack.style.display = 'none';
-                        if(biometricBox) biometricBox.style.display = 'none';
-                        
-                        document.getElementById('idUploadFront').required = false;
-                        document.getElementById('idUploadBack').required = false;
-                        
-                        const titleEl = document.querySelector('#unverifiedPortal h2');
-                        const pEl = document.querySelector('#unverifiedPortal p');
-                        if(titleEl) titleEl.textContent = 'Agent License Required';
-                        if(pEl) pEl.textContent = 'You have already verified your identity securely as a Seller. Please supply your physical Real Estate credentials below to formally unlock full Agent capabilities.';
-                    }
                 } else if (vStatus === 'pending') {
                     pendingPortal.style.display = 'block';
                 } else if (vStatus === 'suspended') {
@@ -550,8 +566,13 @@ if (verifyForm) {
 
             const { data: { session } } = await supabase.auth.getSession();
             
+            let nextStatus = 'pending';
+            if (window.currentUserDoc && (window.currentUserDoc.verification_status === 'agent_unsubmitted' || window.currentUserDoc.verification_status === 'agent_rejected')) {
+                 nextStatus = 'agent_pending';
+            }
+
             const payload = {
-                verification_status: 'pending',
+                verification_status: nextStatus,
                 id_name: document.getElementById('idName') ? document.getElementById('idName').value.trim() : null,
                 id_country: document.getElementById('idCountry') ? document.getElementById('idCountry').value : null,
                 license_number: document.getElementById('licenseNum') ? document.getElementById('licenseNum').value.trim() : null,
@@ -593,12 +614,18 @@ window.triggerAccountUpgrade = async function(targetRole) {
     try {
         const { data: { session } } = await supabase.auth.getSession();
         
-        // When upgrading, strictly violently rip out verification variables to securely force re-submission of higher-tier paperwork limits
-        const payload = { 
+        let payload = { 
             role: targetRole,
             verification_status: 'unsubmitted',
             is_approved: false
         };
+
+        if (window.currentUserDoc && window.currentUserDoc.role === 'seller' && targetRole === 'agent') {
+            payload = {
+                verification_status: 'agent_unsubmitted'
+                // DO NOT overwrite is_approved or role. They naturally cleverly safely implicitly remain an active Seller!
+            };
+        }
 
         const { error } = await supabase.from('users').update(payload).eq('id', session.user.id);
         if (error) throw error;

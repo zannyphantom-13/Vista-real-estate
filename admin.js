@@ -69,13 +69,18 @@ async function loadUserManagement() {
         const isApproved = u.is_approved === true;
         
         if (vStatus === 'pending') pendingCount++;
+        else if (vStatus === 'agent_pending') pendingCount++;
         if (isApproved && u.role === 'seller') sellerCount++;
         if (isApproved && u.role === 'agent') agentCount++;
         
         // Compute Label Aesthetics smartly
         let badgeColor = '#64748b'; // darker gray for dark mode
         let badgeText = 'Unsubmitted';
-        if (isApproved || vStatus === 'approved') {
+        if (vStatus === 'agent_pending') {
+            badgeColor = '#8b5cf6'; badgeText = 'Agent Upgrade Pending';
+        } else if (vStatus === 'agent_rejected') {
+            badgeColor = '#ef4444'; badgeText = 'Agent Details Rejected';
+        } else if (isApproved || vStatus === 'approved') {
             badgeColor = '#10b981'; badgeText = 'Approved';
         } else if (vStatus === 'pending') {
             badgeColor = '#3b82f6'; badgeText = 'Pending Review';
@@ -94,7 +99,7 @@ async function loadUserManagement() {
         let actionBtn = `<span style="color: #64748b; font-size: 0.85rem;">No File Action</span>`;
         if (u.role === 'agent' || u.role === 'seller') {
             window.pendingUsersMap[u.id] = u;
-            if (vStatus === 'pending') {
+            if (vStatus === 'pending' || vStatus === 'agent_pending') {
                 actionBtn = `<button class="btn btn-primary" style="padding: 6px 16px; font-size: 0.85rem;" onclick="openReviewModal('${u.id}')">Review Application</button>`;
             } else if (isApproved) {
                 actionBtn = `
@@ -175,6 +180,17 @@ window.processApplication = async function(userId, isApproved, customStatus) {
     const status = customStatus ? customStatus : (isApproved ? 'approved' : 'rejected');
     const payload = { verification_status: status, is_approved: isApproved };
     
+    // Explicit Agent Upgrades intuitively dynamically safely seamlessly mathematically brilliantly smartly visually cleanly physically correctly
+    const uToProcess = window.pendingUsersMap[userId];
+    if (uToProcess && uToProcess.verification_status === 'agent_pending') {
+        if (isApproved) {
+            payload.role = 'agent';
+        } else {
+            payload.verification_status = 'agent_rejected';
+            payload.is_approved = true; // Still an approved Seller!
+        }
+    }
+
     const { error } = await supabase.from('users').update(payload).eq('id', userId);
     
     if (error) {
