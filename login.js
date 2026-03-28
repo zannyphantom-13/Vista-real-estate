@@ -19,6 +19,10 @@ const signupFields = document.getElementById('signupFields');
 const fullNameInput = document.getElementById('fullName');
 const phoneInput = document.getElementById('phone');
 const roleSelect = document.getElementById('role');
+const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
+const confirmPasswordInput = document.getElementById('confirmPassword');
+const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPasswordBtn');
+const toggleConfirmPasswordIcon = document.getElementById('toggleConfirmPasswordIcon');
 
 const googleBtn = document.getElementById('googleBtn');
 const profileModal = document.getElementById('profileModal');
@@ -61,6 +65,8 @@ toggleBtn.addEventListener('click', () => {
     isSignUpMode = !isSignUpMode;
     if (isSignUpMode) {
         signupFields.style.display = 'block';
+        confirmPasswordGroup.style.display = 'block';
+        confirmPasswordInput.setAttribute('required', 'true');
         forgotPasswordBtn.style.display = 'none';
         authTitle.textContent = 'Create Account';
         authSubtitle.textContent = 'Join Vista to list properties and manage saves.';
@@ -69,6 +75,8 @@ toggleBtn.addEventListener('click', () => {
         toggleBtn.textContent = 'Sign In';
     } else {
         signupFields.style.display = 'none';
+        confirmPasswordGroup.style.display = 'none';
+        confirmPasswordInput.removeAttribute('required');
         forgotPasswordBtn.style.display = 'block';
         authTitle.textContent = 'Welcome Back';
         authSubtitle.textContent = 'Sign in to list properties or save homes.';
@@ -86,6 +94,15 @@ togglePasswordBtn.addEventListener('click', () => {
         togglePasswordIcon.classList.replace('ph-eye', 'ph-eye-slash');
     } else {
         togglePasswordIcon.classList.replace('ph-eye-slash', 'ph-eye');
+    }
+});
+toggleConfirmPasswordBtn.addEventListener('click', () => {
+    const isPass = confirmPasswordInput.getAttribute('type') === 'password';
+    confirmPasswordInput.setAttribute('type', isPass ? 'text' : 'password');
+    if (isPass) {
+        toggleConfirmPasswordIcon.classList.replace('ph-eye', 'ph-eye-slash');
+    } else {
+        toggleConfirmPasswordIcon.classList.replace('ph-eye-slash', 'ph-eye');
     }
 });
 
@@ -181,6 +198,14 @@ authForm.addEventListener('submit', async (e) => {
             const fullName = fullNameInput.value.trim();
             const phone = phoneInput.value.trim();
             const role = roleSelect.value;
+            const confPass = confirmPasswordInput.value;
+
+            if (password !== confPass) {
+                showToast('Passwords do not match. Please blindly confirm your payload dynamically.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                return;
+            }
 
             if (!fullName) {
                 showToast('Please enter your full name natively.', 'error');

@@ -71,9 +71,19 @@
             <button type="button" id="forgotPasswordBtn" class="clear-btn" style="font-size: 0.8rem; font-weight: 500; color: var(--primary);">Forgot?</button>
           </label>
           <div style="position: relative;">
-            <input type="password" id="password" required placeholder="••••••••" style="padding-right: 48px;">
+            <input type="password" id="password" required placeholder="••••••••" style="padding-right: 48px; width: 100%; padding-top: 12px; padding-bottom: 12px; border: 1px solid var(--border); border-radius: var(--radius);">
             <button type="button" id="togglePasswordBtn" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.25rem; display: flex; cursor: pointer;">
               <i class="ph ph-eye" id="togglePasswordIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="input-group" id="confirmPasswordGroup" style="display: none;">
+          <label for="confirmPassword">Confirm Password</label>
+          <div style="position: relative;">
+            <input type="password" id="confirmPassword" placeholder="••••••••" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); padding-right: 48px;">
+            <button type="button" id="toggleConfirmPasswordBtn" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.25rem; display: flex; cursor: pointer;">
+              <i class="ph ph-eye" id="toggleConfirmPasswordIcon"></i>
             </button>
           </div>
         </div>
