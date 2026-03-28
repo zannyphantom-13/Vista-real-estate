@@ -310,8 +310,9 @@ if (uploadForm) {
             uploadForm.reset();
 
         } catch (error) {
-            showToast('Error uploading property: ' + error.message, 'error');
-            console.error(error);
+            const errObj = typeof error === 'object' ? JSON.stringify(error, null, 2) : error;
+            showToast('Error uploading property: ' + (error.message || 'Unknown. See console.') + ' | Details: ' + (error.details || error.hint || errObj), 'error');
+            console.error("Full Supabase Upload Error:", error);
         } finally {
             uploadBtn.textContent = 'Publish Listing';
             uploadBtn.disabled = false;
