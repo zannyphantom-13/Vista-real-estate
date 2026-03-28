@@ -175,8 +175,11 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                     if (userDoc.role === 'agent' && userDoc.id_url) {
                         const idUploadGroupFront = document.getElementById('idUploadFront')?.parentElement;
                         const idUploadGroupBack = document.getElementById('idUploadBack')?.parentElement;
+                        const biometricBox = document.getElementById('startRecordingBtn')?.parentElement;
+
                         if(idUploadGroupFront) idUploadGroupFront.style.display = 'none';
                         if(idUploadGroupBack) idUploadGroupBack.style.display = 'none';
+                        if(biometricBox) biometricBox.style.display = 'none';
                         
                         document.getElementById('idUploadFront').required = false;
                         document.getElementById('idUploadBack').required = false;
