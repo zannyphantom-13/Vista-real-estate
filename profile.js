@@ -221,7 +221,7 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 const up = document.getElementById('uploadPortal');
                 if (up) up.style.display = 'block';
                 const badgeContainer = document.getElementById('verificationBadges');
-                if (badgeContainer) badgeContainer.innerHTML = `<i class="ph-fill ph-seal-check" style="color: #3b82f6;" title="Verified Identity"></i><i class="ph-fill ph-seal-check" style="color: #f59e0b;" title="Verified Real Estate License"></i>`;
+                if (badgeContainer) badgeContainer.innerHTML = `<i class="ph-fill ph-seal-check" style="color: #3b82f6;" title="Verified Identity"></i><i class="ph-fill ph-briefcase" style="color: #f59e0b;" title="Verified Real Estate License"></i>`;
             } else {
                 if (vStatus === 'suspended') {
                     const sp = document.getElementById('suspendedPortal');

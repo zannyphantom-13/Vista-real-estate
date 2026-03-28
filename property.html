@@ -193,9 +193,15 @@
                 document.getElementById('agentImg').src = data.agent_avatar || `https://ui-avatars.com/api/?name=Agent&background=random`;
                 
                 if (data.user_id) {
-                    supabase.from('users').select('full_name, profile_url, is_approved').eq('id', data.user_id).single().then(({ data: userData, error: uErr }) => {
+                    supabase.from('users').select('full_name, profile_url, is_approved, role').eq('id', data.user_id).single().then(({ data: userData, error: uErr }) => {
                         if (userData && !uErr) {
-                            const badgeHtml = userData.is_approved ? '<i class="ph-fill ph-seal-check" style="color: #3b82f6; font-size: 1.2rem;" title="Verified Agent"></i>' : '';
+                            let badgeHtml = '';
+                            if (userData.is_approved) {
+                                badgeHtml += '<i class="ph-fill ph-seal-check" style="color: #3b82f6; font-size: 1.2rem;" title="Verified Identity"></i>';
+                                if (userData.role === 'agent') {
+                                    badgeHtml += '<i class="ph-fill ph-briefcase" style="color: #f59e0b; font-size: 1.2rem; margin-left: 2px;" title="Verified Real Estate License"></i>';
+                                }
+                            }
                             document.getElementById('agentName').innerHTML = `${userData.full_name || 'Vista Agent'} ${badgeHtml}`;
                             document.getElementById('agentImg').src = userData.profile_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.full_name || 'Agent')}&background=random`;
                         }

@@ -138,6 +138,7 @@ function renderListings() {
             <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-main); display: flex; align-items: center; gap: 4px;">
                 ${p.agent_name} 
                 ${p.is_approved ? '<i class="ph-fill ph-seal-check" style="color: #3b82f6; font-size: 1rem;" title="Verified Identity"></i>' : ''}
+                ${(p.is_approved && p.agent_role === 'agent') ? '<i class="ph-fill ph-briefcase" style="color: #f59e0b; font-size: 1rem; margin-left: -2px;" title="Verified Real Estate License"></i>' : ''}
             </span>
           </div>
           <span class="posted-date" style="font-size: 0.8rem; color: var(--text-muted);">${timeAgo(p.date)}</span>
@@ -298,7 +299,7 @@ const initApp = async () => {
             let usersMap = {};
             const userIds = [...new Set(data.map(d => d.user_id).filter(Boolean))];
             if (userIds.length > 0) {
-                const { data: usersData } = await supabase.from('users').select('id, full_name, profile_url, is_approved').in('id', userIds);
+                const { data: usersData } = await supabase.from('users').select('id, full_name, profile_url, is_approved, role').in('id', userIds);
                 if (usersData) {
                     usersData.forEach(u => { usersMap[u.id] = u; });
                 }
@@ -318,9 +319,10 @@ const initApp = async () => {
                     status: doc.status,
                     isNew: doc.is_new,
                     image: doc.image,
-                    agent_avatar: author.profile_url || `https://ui-avatars.com/api/?name=${author.full_name || 'Agent'}&background=random`,
+                    agent_avatar: author.profile_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(author.full_name || 'Agent')}&background=random`,
                     agent_name: author.full_name || 'Vista Agent',
                     is_approved: author.is_approved || false,
+                    agent_role: author.role || 'user',
                     date: doc.created_at
                 };
             });
