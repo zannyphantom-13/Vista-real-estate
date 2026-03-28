@@ -83,6 +83,11 @@ async function loadUserManagement() {
             badgeColor = '#ef4444'; badgeText = 'Rejected';
         }
 
+        // Compute Role Tag Aesthetics mapped for Supreme Obsidian modes natively
+        let trCol = '#94a3b8'; let trBg = '#cbd5e1'; let trIcn = 'ph-user';
+        if(u.role === 'agent') { trCol = '#f59e0b'; trBg = '#f59e0b'; trIcn = 'ph-briefcase'; }
+        else if (u.role === 'seller') { trCol = '#10b981'; trBg = '#10b981'; trIcn = 'ph-storefront'; }
+
         // Action button is strictly dynamically routed if they have submitted documentation
         let actionBtn = `<span style="color: #64748b; font-size: 0.85rem;">No File Action</span>`;
         if (u.role === 'agent' || u.role === 'seller') {
@@ -99,7 +104,11 @@ async function loadUserManagement() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td style="padding: 16px; border-bottom: 1px solid #334155; font-weight: 500;">${u.full_name || 'N/A'}</td>
-            <td style="padding: 16px; border-bottom: 1px solid #334155; text-transform: capitalize; color: #94a3b8;">${u.role}</td>
+            <td style="padding: 16px; border-bottom: 1px solid #334155;">
+                <span style="display: inline-flex; align-items: center; gap: 4px; background: ${trBg}20; border: 1px solid ${trBg}40; color: ${trCol}; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                   <i class="ph ${trIcn}"></i> ${u.role}
+                </span>
+            </td>
             <td style="padding: 16px; border-bottom: 1px solid #334155; font-family: monospace;">${u.phone || 'N/A'}</td>
             <td style="padding: 16px; border-bottom: 1px solid #334155;">
                 <span style="background: ${badgeColor}20; color: ${badgeColor}; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">${badgeText}</span>

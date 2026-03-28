@@ -49,7 +49,15 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
     document.getElementById('profName').textContent = userDoc.full_name || 'Anonymous';
     document.getElementById('profEmail').textContent = userDoc.email || 'N/A';
     document.getElementById('profPhone').textContent = userDoc.phone || 'N/A';
-    document.getElementById('profRole').textContent = userDoc.role;
+    
+    // Build Explicit Structural Badge based strictly on native Identity Tiers
+    let rbColor = '#64748b'; let rbBg = '#f1f5f9'; let rIcon = 'ph-user';
+    if(userDoc.role === 'agent') { rbColor = '#d97706'; rbBg = '#fef3c7'; rIcon = 'ph-briefcase'; }
+    else if (userDoc.role === 'seller') { rbColor = '#059669'; rbBg = '#d1fae5'; rIcon = 'ph-storefront'; }
+    else if (userDoc.role === 'buyer') { rbColor = '#2563eb'; rbBg = '#dbeafe'; rIcon = 'ph-shopping-cart'; }
+    else if (userDoc.role === 'renter') { rbColor = '#7c3aed'; rbBg = '#ede9fe'; rIcon = 'ph-key'; }
+
+    document.getElementById('profRole').innerHTML = `<span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: ${rbBg}; color: ${rbColor}; border-radius: 9999px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid ${rbColor}30;"><i class="ph ${rIcon}"></i> ${userDoc.role}</span>`;
 
     // ACCOUNT UPGRADE ROUTING
     const upgradeSection = document.getElementById('upgradeSection');
