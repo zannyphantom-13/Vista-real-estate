@@ -233,6 +233,8 @@ if (verifyForm) {
             
             const payload = {
                 verification_status: 'pending',
+                id_name: document.getElementById('idName') ? document.getElementById('idName').value.trim() : null,
+                id_country: document.getElementById('idCountry') ? document.getElementById('idCountry').value : null,
                 license_number: document.getElementById('licenseNum') ? document.getElementById('licenseNum').value.trim() : null,
                 brokerage_name: document.getElementById('brokerageName') ? document.getElementById('brokerageName').value.trim() : null
             };

@@ -166,6 +166,25 @@
        </div>
 
        <form id="verifyForm" class="auth-form">
+          <div class="input-group" style="margin-bottom: 16px;">
+              <label for="idName">Full Legal Name (Strictly matching Government ID)</label>
+              <input type="text" id="idName" required placeholder="e.g. John Edward Doe" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px;">
+          </div>
+          <div class="input-group" style="margin-bottom: 16px;">
+              <label for="idCountry">Government ID Issuing Country</label>
+              <div class="select-wrapper">
+                  <select id="idCountry" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius);">
+                      <option value="" disabled selected>Select Issuing Country...</option>
+                      <option value="United States">United States</option>
+                      <option value="United Kingdom">United Kingdom</option>
+                      <option value="Canada">Canada</option>
+                      <option value="Australia">Australia</option>
+                      <option value="Other">Other / International Sovereign</option>
+                  </select>
+                  <i class="ph ph-caret-down"></i>
+              </div>
+          </div>
+
           <div id="agentFields" style="display: none;">
               <div class="input-group">
                   <label>Real Estate License Number</label>

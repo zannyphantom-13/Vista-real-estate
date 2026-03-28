@@ -45,6 +45,8 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
 // ==========================================
 // 1. OWNER PORTAL LOGIC
 // ==========================================
+window.pendingUsersMap = {};
+
 async function loadUserManagement() {
     // Fetch explicit seller/agent users actively traversing the platform, except other supreme owners
     const { data: users, error } = await supabase
@@ -84,8 +86,9 @@ async function loadUserManagement() {
         // Action button is strictly dynamically routed if they have submitted documentation
         let actionBtn = `<span style="color: #64748b; font-size: 0.85rem;">No File Action</span>`;
         if (u.role === 'agent' || u.role === 'seller') {
+            window.pendingUsersMap[u.id] = u;
             if (vStatus === 'pending') {
-                actionBtn = `<button class="btn btn-primary" style="padding: 6px 16px; font-size: 0.85rem;" onclick="openReviewModal('${u.id}', '${u.full_name}', '${u.license_number}', '${u.brokerage_name}', '${u.id_url}')">Review Application</button>`;
+                actionBtn = `<button class="btn btn-primary" style="padding: 6px 16px; font-size: 0.85rem;" onclick="openReviewModal('${u.id}')">Review Application</button>`;
             } else if (isApproved) {
                 actionBtn = `<button class="btn btn-secondary" style="padding: 6px 16px; font-size: 0.85rem; border-color: #ef4444; color: #ef4444;" onclick="processApplication('${u.id}', false)">Revoke Access</button>`;
             } else if (vStatus === 'rejected') {
@@ -113,14 +116,21 @@ async function loadUserManagement() {
 }
 
 // Global scope function for opening securely the Application Review parameters
-window.openReviewModal = function(userId, name, license, brokerage, idUrl) {
+window.openReviewModal = function(userId) {
+    const u = window.pendingUsersMap[userId];
+    if(!u) return;
+
     document.getElementById('reviewModal').style.display = 'flex';
     document.getElementById('reviewMeta').innerHTML = `
-        <span style="display: block; margin-bottom: 8px;"><strong>Applicant Entity:</strong> ${name && name !== 'undefined' ? name : 'Anonymous'}</span>
-        <span style="display: block; margin-bottom: 8px;"><strong>Submitted License Number:</strong> ${license && license !== 'undefined' && license !== 'null' ? license : '(Consumer Exemption)'}</span>
-        <span style="display: block; margin-bottom: 8px;"><strong>Brokerage Organization:</strong> ${brokerage && brokerage !== 'undefined' && brokerage !== 'null' ? brokerage : '(Consumer Exemption)'}</span>
+        <span style="display: block; margin-bottom: 8px;"><strong>Account Entity Profile:</strong> ${u.full_name || 'Anonymous Platform Identifier'}</span>
+        <div style="background: #f1f5f9; padding: 16px; border-radius: 8px; margin-bottom: 16px; border: 1px dashed #cbd5e1;">
+            <span style="display: block; margin-bottom: 8px; color: var(--secondary); font-size: 1.05rem;"><strong>Formal Legal ID Name:</strong> ${u.id_name || '<span style="color:#ef4444; font-weight:700;">NOT PROVIDED</span>'}</span>
+            <span style="display: block; color: var(--text-main);"><strong>Issuing ID Sovereign Country:</strong> ${u.id_country || '<span style="color:#ef4444;">NOT PROVIDED</span>'}</span>
+        </div>
+        <span style="display: block; margin-bottom: 8px;"><strong>Real Estate License:</strong> ${u.license_number || '<span style="color:#64748b; font-style:italic;">(Consumer Upload Exemption)</span>'}</span>
+        <span style="display: block; margin-bottom: 8px;"><strong>Brokerage Organization:</strong> ${u.brokerage_name || '<span style="color:#64748b; font-style:italic;">(Consumer Upload Exemption)</span>'}</span>
     `;
-    document.getElementById('reviewIdUrl').href = idUrl;
+    document.getElementById('reviewIdUrl').href = u.id_url || '#';
     
     // Inject the exact function triggers instantly to bypass scope
     document.getElementById('confirmApproveBtn').onclick = () => window.processApplication(userId, true);
