@@ -180,6 +180,10 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
                 if (vStatus === 'agent_unsubmitted' || vStatus === 'agent_rejected') {
                      const unverifiedPortal = document.getElementById('unverifiedPortal');
                      if(unverifiedPortal) unverifiedPortal.style.display = 'block';
+                     
+                     const overlay = document.getElementById('aiLoadingOverlay');
+                     if (overlay) overlay.style.display = 'none';
+
                      document.getElementById('agentFields').style.display = 'block';
                      if (vStatus === 'agent_rejected') {
                          const rw = document.getElementById('rejectedWarning');
