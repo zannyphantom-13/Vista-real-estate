@@ -45,7 +45,10 @@
        
        <div class="resp-grid-3">
             <div style="padding: 24px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;">
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;"><i class="ph ph-user"></i> Full Name</p>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px; display:flex; justify-content:space-between; align-items:center;">
+                    <span><i class="ph ph-user"></i> Full Name</span>
+                    <button id="editNameBtn" class="btn btn-ghost" style="padding: 4px 8px; font-size: 0.8rem; display: none;"><i class="ph ph-pencil-simple"></i> Edit Legal Name</button>
+                </p>
                 <div style="display: flex; align-items: center;">
                     <div id="profName" style="font-weight: 700; font-size: 1.2rem;"></div>
                     <div id="verificationBadges" style="margin-left: 8px; display: flex; gap: 4px; font-size: 1.3rem;"></div>
@@ -170,22 +173,16 @@
 
        <form id="verifyForm" class="auth-form">
           <div class="input-group" style="margin-bottom: 16px;">
-              <label for="idName">Full Legal Name (Strictly matching Government ID)</label>
-              <input type="text" id="idName" required placeholder="e.g. John Edward Doe" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px;">
+              <label for="idName">Full Legal Name (Synchronized with Account permanently)</label>
+              <input type="text" id="idName" required readonly style="width:100%; padding:12px; background: #f1f5f9; border:1px solid var(--border); border-radius:8px; color: var(--text-muted); font-weight: 500;">
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px;">To update your name here, use the 'Edit Legal Name' button on your profile dashboard before verification securely locks.</p>
           </div>
           <div class="input-group" style="margin-bottom: 16px;">
               <label for="idCountry">Government ID Issuing Country</label>
-              <div class="select-wrapper">
-                  <select id="idCountry" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius);">
-                      <option value="" disabled selected>Select Issuing Country...</option>
-                      <option value="United States">United States</option>
-                      <option value="United Kingdom">United Kingdom</option>
-                      <option value="Canada">Canada</option>
-                      <option value="Australia">Australia</option>
-                      <option value="Other">Other / International Sovereign</option>
-                  </select>
-                  <i class="ph ph-caret-down"></i>
-              </div>
+              <input type="text" list="countryList" id="idCountry" required placeholder="Type to instantly search all global sovereign countries..." style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius);">
+              <datalist id="countryList">
+                  <!-- Dynamically rigorously populated by organic alphabetized matrix -->
+              </datalist>
           </div>
 
           <div id="agentFields" style="display: none;">

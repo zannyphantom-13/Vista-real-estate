@@ -79,6 +79,42 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         }
     }
 
+    // IDENTITY NAME SYNCHRONIZATION AND EDITING LOCK
+    const editNameBtn = document.getElementById('editNameBtn');
+    const idNameField = document.getElementById('idName');
+    
+    if (idNameField) {
+        idNameField.value = userDoc.full_name || ''; 
+    }
+
+    // Only allow editing if the user is completely unverified conceptually natively
+    if (userDoc.is_approved !== true && (userDoc.verification_status !== 'pending')) {
+        if(editNameBtn) editNameBtn.style.display = 'block';
+        if(editNameBtn) editNameBtn.onclick = async () => {
+            const newName = prompt('Enter your strictly legal Full Name natively synced with your physical ID docs:', userDoc.full_name);
+            if(newName && newName.trim().length > 0) {
+                const { error } = await supabase.from('users').update({ full_name: newName.trim() }).eq('id', userDoc.id);
+                if(error) return showToast('Failed Name Refactor: ' + error.message, 'error');
+                showToast('Legal Name brilliantly refactored globally!', 'success');
+                setTimeout(() => window.location.reload(), 1000);
+            }
+        };
+    }
+
+    // ORGANIC SEARCHABLE COUNTRY LEDGER GENERATION
+    const countryList = document.getElementById('countryList');
+    if (countryList) {
+        const baseCountries = ["United States", "United Kingdom", "Canada", "Australia", "Germany", "France", "Japan", "Brazil", "China", "India"];
+        
+        // Dynamically scavenge all historically verified custom countries across the global platform explicitly
+        const { data: verifiedNodes } = await supabase.from('users').select('id_country').eq('is_approved', true);
+        const dynamicVars = verifiedNodes ? verifiedNodes.map(u => u.id_country).filter(c => c && c.trim() !== '') : [];
+        
+        // Aggressively format uniquely distinct variables seamlessly and organize rigorously alphabetically securely
+        const distinctMatrix = [...new Set([...baseCountries, ...dynamicVars])].sort((a, b) => a.localeCompare(b));
+        countryList.innerHTML = distinctMatrix.map(c => `<option value="${c}">`).join('');
+    }
+
     // ==========================================
     // HYBRID WORKSPACE ROUTING
     // ==========================================
