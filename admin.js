@@ -52,7 +52,7 @@ async function loadUserManagement() {
     const { data: users, error } = await supabase
         .from('users')
         .select('*')
-        .in('role', ['agent', 'seller'])
+        .or('role.in.(agent,seller),verification_status.not.is.null')
         .neq('is_owner', true)
         .order('created_at', { ascending: false });
     if(error) return showToast('Failed to load platform users: ' + error.message, 'error');
@@ -97,25 +97,24 @@ async function loadUserManagement() {
 
         // Action button is strictly dynamically routed if they have submitted documentation
         let actionBtn = `<span style="color: #64748b; font-size: 0.85rem;">No File Action</span>`;
-        if (u.role === 'agent' || u.role === 'seller') {
-            window.pendingUsersMap[u.id] = u;
-            if (vStatus === 'pending' || vStatus === 'agent_pending') {
-                actionBtn = `<button class="btn btn-primary" style="padding: 6px 16px; font-size: 0.85rem;" onclick="openReviewModal('${u.id}')">Review Application</button>`;
-            } else if (isApproved) {
-                actionBtn = `
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-color: #f59e0b; color: #f59e0b; background: transparent;" title="Temporarily Suspend" onclick="processApplication('${u.id}', false, 'suspended')"><i class="ph ph-pause"></i> Suspend</button>
-                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-color: #ef4444; color: #ef4444; background: transparent;" title="Permanently Revoke" onclick="processApplication('${u.id}', false, 'rejected')"><i class="ph ph-x-circle"></i> Revoke</button>
-                </div>`;
-            } else if (vStatus === 'suspended') {
-                actionBtn = `
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-color: #10b981; color: #10b981; background: transparent;" onclick="processApplication('${u.id}', true, 'approved')"><i class="ph ph-play"></i> Restore</button>
-                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-color: #ef4444; color: #ef4444; background: transparent;" onclick="processApplication('${u.id}', false, 'rejected')"><i class="ph ph-x-circle"></i> Revoke</button>
-                </div>`;
-            } else if (vStatus === 'rejected') {
-                actionBtn = `<span style="color: #ef4444; font-size: 0.85rem; font-weight: 500;">Rejected Status</span>`;
-            }
+        window.pendingUsersMap[u.id] = u;
+        
+        if (vStatus === 'pending' || vStatus === 'agent_pending') {
+            actionBtn = `<button class="btn btn-primary" style="padding: 6px 16px; font-size: 0.85rem;" onclick="openReviewModal('${u.id}')">Review Application</button>`;
+        } else if (isApproved) {
+            actionBtn = `
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-color: #f59e0b; color: #f59e0b; background: transparent;" title="Temporarily Suspend" onclick="processApplication('${u.id}', false, 'suspended')"><i class="ph ph-pause"></i> Suspend</button>
+                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-color: #ef4444; color: #ef4444; background: transparent;" title="Permanently Revoke" onclick="processApplication('${u.id}', false, 'rejected')"><i class="ph ph-x-circle"></i> Revoke</button>
+            </div>`;
+        } else if (vStatus === 'suspended') {
+            actionBtn = `
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-color: #10b981; color: #10b981; background: transparent;" onclick="processApplication('${u.id}', true, 'approved')"><i class="ph ph-play"></i> Restore</button>
+                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-color: #ef4444; color: #ef4444; background: transparent;" onclick="processApplication('${u.id}', false, 'rejected')"><i class="ph ph-x-circle"></i> Revoke</button>
+            </div>`;
+        } else if (vStatus === 'rejected' || vStatus === 'agent_rejected') {
+            actionBtn = `<span style="color: #ef4444; font-size: 0.85rem; font-weight: 500;">Rejected Status</span>`;
         }
 
         const tr = document.createElement('tr');
@@ -182,12 +181,17 @@ window.processApplication = async function(userId, isApproved, customStatus) {
     
     // Explicit Agent Upgrades intuitively dynamically safely seamlessly mathematically brilliantly smartly visually cleanly physically correctly
     const uToProcess = window.pendingUsersMap[userId];
-    if (uToProcess && uToProcess.verification_status === 'agent_pending') {
-        if (isApproved) {
-            payload.role = 'agent';
-        } else {
-            payload.verification_status = 'agent_rejected';
-            payload.is_approved = true; // Still an approved Seller!
+    if (uToProcess) {
+        if (uToProcess.verification_status === 'pending') {
+            if (isApproved) payload.role = 'seller';
+            else payload.verification_status = 'rejected';
+        } else if (uToProcess.verification_status === 'agent_pending') {
+            if (isApproved) {
+                payload.role = 'agent';
+            } else {
+                payload.verification_status = 'agent_rejected';
+                payload.is_approved = true; // Still an approved Seller!
+            }
         }
     }
 

@@ -19,7 +19,6 @@ const toggleText = document.getElementById('toggleText');
 const signupFields = document.getElementById('signupFields');
 const fullNameInput = document.getElementById('fullName');
 const phoneInput = document.getElementById('phone');
-const roleSelect = document.getElementById('role');
 const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
 const confirmPasswordInput = document.getElementById('confirmPassword');
 const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPasswordBtn');
@@ -29,7 +28,6 @@ const googleBtn = document.getElementById('googleBtn');
 const profileModal = document.getElementById('profileModal');
 const profileForm = document.getElementById('profileForm');
 const modalPhone = document.getElementById('modalPhone');
-const modalRole = document.getElementById('modalRole');
 const modalSubmitBtn = document.getElementById('modalSubmitBtn');
 
 // Supabase Auth State Observer
@@ -134,7 +132,7 @@ profileForm.addEventListener('submit', async (e) => {
         const { error } = await supabase.from('users').upsert({
             id: pendingUser.id,
             phone: modalPhone.value.trim(),
-            role: modalRole.value,
+            role: 'buyer',
             full_name: pendingUser.user_metadata?.full_name || 'Vista User',
             email: pendingUser.email
         });
@@ -202,7 +200,6 @@ authForm.addEventListener('submit', async (e) => {
         if (isSignUpMode) {
             const fullName = fullNameInput.value.trim();
             const phone = phoneInput.value.trim();
-            const role = roleSelect.value;
             const confPass = confirmPasswordInput.value;
 
             if (password !== confPass) {
@@ -238,7 +235,7 @@ authForm.addEventListener('submit', async (e) => {
                     id: data.user.id,
                     full_name: fullName,
                     phone: phone,
-                    role: role,
+                    role: 'buyer',
                     email: email
                 });
 

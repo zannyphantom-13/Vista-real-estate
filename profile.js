@@ -71,15 +71,19 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
     const upgradeSection = document.getElementById('upgradeSection');
     if (upgradeSection) {
         let upgradeEnabled = false;
+        const vStat = userDoc.verification_status;
         if (userDoc.role === 'buyer' || userDoc.role === 'renter') {
-            upgradeSection.style.display = 'block';
-            document.getElementById('upgradeDesc').textContent = 'Unlock the capability to violently list your own properties by natively upgrading exclusively to a Seller account.';
-            const uBtn = document.getElementById('upgradeBtn');
-            uBtn.textContent = 'Upgrade to Seller';
-            upgradeEnabled = true;
-            uBtn.onclick = () => window.triggerAccountUpgrade('seller');
+            if (vStat === 'unsubmitted' || vStat === 'pending' || vStat === 'rejected' || vStat === 'suspended') {
+                upgradeSection.style.display = 'none';
+            } else {
+                upgradeSection.style.display = 'block';
+                document.getElementById('upgradeDesc').textContent = 'Unlock the capability to violently list your own properties by natively upgrading exclusively to a Seller account.';
+                const uBtn = document.getElementById('upgradeBtn');
+                uBtn.textContent = 'Upgrade to Seller';
+                upgradeEnabled = true;
+                uBtn.onclick = () => window.triggerAccountUpgrade('seller');
+            }
         } else if (userDoc.role === 'seller') {
-            const vStat = userDoc.verification_status || 'unsubmitted';
             if (vStat === 'agent_unsubmitted' || vStat === 'agent_pending' || vStat === 'agent_rejected') {
                 upgradeSection.style.display = 'none';
             } else {
@@ -145,71 +149,79 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
     // HYBRID WORKSPACE ROUTING
     // ==========================================
 
-    // Consumer / Standard User Level (Buyer, Renter, Seller) always can universally load Saved Homes natively
     const consumerPortal = document.getElementById('consumerPortal');
     if(consumerPortal) consumerPortal.style.display = 'block';
 
-        if (userDoc.role === 'agent' || userDoc.role === 'seller') {
-            const vStatus = userDoc.verification_status || 'unsubmitted';
-
+        const vStatus = userDoc.verification_status;
+        
+        if (userDoc.role === 'buyer' || userDoc.role === 'renter') {
+            if (vStatus === 'unsubmitted' || vStatus === 'rejected') {
+                const unverifiedPortal = document.getElementById('unverifiedPortal');
+                if(unverifiedPortal) unverifiedPortal.style.display = 'block';
+                if (typeof loadAILogic === 'function') loadAILogic().catch(console.error);
+                document.getElementById('agentFields').style.display = 'none';
+                if (vStatus === 'rejected') {
+                    const rw = document.getElementById('rejectedWarning');
+                    if(rw) rw.style.display = 'block';
+                }
+            } else if (vStatus === 'pending') {
+                const pp = document.getElementById('pendingPortal');
+                if (pp) pp.style.display = 'block';
+            }
+        }
+        else if (userDoc.role === 'seller') {
             if (userDoc.is_approved === true) {
-                uploadPortal.style.display = 'block';
+                const up = document.getElementById('uploadPortal');
+                if (up) up.style.display = 'block';
                 
-                // Inject the Explicit Tiered Visual Verification Badges directly linked logically natively
                 const badgeContainer = document.getElementById('verificationBadges');
-                if (badgeContainer) {
-                    if (userDoc.role === 'seller') {
-                        badgeContainer.innerHTML = `<i class="ph-fill ph-seal-check" style="color: #3b82f6;" title="Verified Identity"></i>`;
-                    } else if (userDoc.role === 'agent') {
-                        badgeContainer.innerHTML = `<i class="ph-fill ph-seal-check" style="color: #3b82f6;" title="Verified Identity"></i><i class="ph-fill ph-seal-check" style="color: #f59e0b;" title="Verified Real Estate License"></i>`;
-                    }
-                }
+                if (badgeContainer) badgeContainer.innerHTML = `<i class="ph-fill ph-seal-check" style="color: #3b82f6;" title="Verified Identity"></i>`;
 
-                // DYNAMIC TIERED UPLOAD BYPASS: Upgrading Sellers naturally natively intelligently functionally structurally smoothly magically creatively smoothly safely accurately flawlessly mathematically
-                if (vStatus === 'agent_unsubmitted' || vStatus === 'agent_pending' || vStatus === 'agent_rejected') {
-                     if (vStatus === 'agent_unsubmitted' || vStatus === 'agent_rejected') {
-                         const unverifiedPortal = document.getElementById('unverifiedPortal');
-                         if(unverifiedPortal) unverifiedPortal.style.display = 'block';
-                         document.getElementById('agentFields').style.display = 'block';
-                         
-                         if (vStatus === 'agent_rejected') document.getElementById('rejectedWarning').style.display = 'block';
-
-                         const idUploadGroupFront = document.getElementById('idUploadFront')?.parentElement;
-                         const idUploadGroupBack = document.getElementById('idUploadBack')?.parentElement;
-                         const biometricBox = document.getElementById('startRecordingBtn')?.parentElement;
-
-                         if(idUploadGroupFront) idUploadGroupFront.style.display = 'none';
-                         if(idUploadGroupBack) idUploadGroupBack.style.display = 'none';
-                         if(biometricBox) biometricBox.style.display = 'none';
-                        
-                         document.getElementById('idUploadFront').required = false;
-                         document.getElementById('idUploadBack').required = false;
-                        
-                         const titleEl = document.querySelector('#unverifiedPortal h2');
-                         const pEl = document.querySelector('#unverifiedPortal p');
-                         if(titleEl) titleEl.textContent = 'Agent License Required';
-                         if(pEl) pEl.textContent = 'You have already verified your identity securely as a Seller. Please supply your physical Real Estate credentials below to formally unlock full Agent capabilities.';
-                     } else if (vStatus === 'agent_pending') {
-                         if(pendingPortal) pendingPortal.style.display = 'block';
+                if (vStatus === 'agent_unsubmitted' || vStatus === 'agent_rejected') {
+                     const unverifiedPortal = document.getElementById('unverifiedPortal');
+                     if(unverifiedPortal) unverifiedPortal.style.display = 'block';
+                     document.getElementById('agentFields').style.display = 'block';
+                     if (vStatus === 'agent_rejected') {
+                         const rw = document.getElementById('rejectedWarning');
+                         if(rw) rw.style.display = 'block';
                      }
+
+                     const idUploadGroupFront = document.getElementById('idUploadFront')?.parentElement;
+                     const idUploadGroupBack = document.getElementById('idUploadBack')?.parentElement;
+                     const biometricBox = document.getElementById('startRecordingBtn')?.parentElement;
+                     if(idUploadGroupFront) idUploadGroupFront.style.display = 'none';
+                     if(idUploadGroupBack) idUploadGroupBack.style.display = 'none';
+                     if(biometricBox) biometricBox.style.display = 'none';
+                     const frontInput = document.getElementById('idUploadFront');
+                     const backInput = document.getElementById('idUploadBack');
+                     if(frontInput) frontInput.required = false;
+                     if(backInput) backInput.required = false;
+                     
+                     const titleEl = document.querySelector('#unverifiedPortal h2');
+                     const pEl = document.querySelector('#unverifiedPortal p');
+                     if(titleEl) titleEl.textContent = 'Agent License Required';
+                     if(pEl) pEl.textContent = 'You have already verified your identity securely as a Seller. Please supply your physical Real Estate credentials below to formally unlock full Agent capabilities.';
+                } else if (vStatus === 'agent_pending') {
+                     const pp = document.getElementById('pendingPortal');
+                     if(pp) pp.style.display = 'block';
                 }
-
             } else {
-                if (vStatus === 'unsubmitted' || vStatus === 'rejected') {
-                    if(!document.getElementById('unverifiedPortal')) return;
-                    document.getElementById('unverifiedPortal').style.display = 'block';
-                    
-                    // Boot Native WebGL AI Core physically seamlessly gracefully properly securely
-                    if (typeof loadAILogic === 'function') loadAILogic().catch(console.error);
-
-                    document.getElementById('agentFields').style.display = (userDoc.role === 'agent') ? 'block' : 'none';
-                    if (vStatus === 'rejected') document.getElementById('rejectedWarning').style.display = 'block';
-
-                } else if (vStatus === 'pending') {
-                    pendingPortal.style.display = 'block';
-                } else if (vStatus === 'suspended') {
-                    const suspendedPortal = document.getElementById('suspendedPortal');
-                    if (suspendedPortal) suspendedPortal.style.display = 'block';
+                if (vStatus === 'suspended') {
+                    const sp = document.getElementById('suspendedPortal');
+                    if (sp) sp.style.display = 'block';
+                }
+            }
+        }
+        else if (userDoc.role === 'agent') {
+            if (userDoc.is_approved === true) {
+                const up = document.getElementById('uploadPortal');
+                if (up) up.style.display = 'block';
+                const badgeContainer = document.getElementById('verificationBadges');
+                if (badgeContainer) badgeContainer.innerHTML = `<i class="ph-fill ph-seal-check" style="color: #3b82f6;" title="Verified Identity"></i><i class="ph-fill ph-seal-check" style="color: #f59e0b;" title="Verified Real Estate License"></i>`;
+            } else {
+                if (vStatus === 'suspended') {
+                    const sp = document.getElementById('suspendedPortal');
+                    if (sp) sp.style.display = 'block';
                 }
             }
         }
@@ -614,17 +626,12 @@ window.triggerAccountUpgrade = async function(targetRole) {
     try {
         const { data: { session } } = await supabase.auth.getSession();
         
-        let payload = { 
-            role: targetRole,
-            verification_status: 'unsubmitted',
-            is_approved: false
-        };
+        let payload = {};
 
-        if (window.currentUserDoc && window.currentUserDoc.role === 'seller' && targetRole === 'agent') {
-            payload = {
-                verification_status: 'agent_unsubmitted'
-                // DO NOT overwrite is_approved or role. They naturally cleverly safely implicitly remain an active Seller!
-            };
+        if (targetRole === 'seller') {
+            payload = { verification_status: 'unsubmitted' };
+        } else if (targetRole === 'agent') {
+            payload = { verification_status: 'agent_unsubmitted' };
         }
 
         const { error } = await supabase.from('users').update(payload).eq('id', session.user.id);
