@@ -131,13 +131,13 @@ window.openReviewModal = function(userId) {
 
     document.getElementById('reviewModal').style.display = 'flex';
     document.getElementById('reviewMeta').innerHTML = `
-        <span style="display: block; margin-bottom: 8px;"><strong>Account Entity Profile:</strong> ${u.full_name || 'Anonymous Platform Identifier'}</span>
-        <div style="background: #f1f5f9; padding: 16px; border-radius: 8px; margin-bottom: 16px; border: 1px dashed #cbd5e1;">
-            <span style="display: block; margin-bottom: 8px; color: var(--secondary); font-size: 1.05rem;"><strong>Formal Legal ID Name:</strong> ${u.id_name || '<span style="color:#ef4444; font-weight:700;">NOT PROVIDED</span>'}</span>
-            <span style="display: block; color: var(--text-main);"><strong>Issuing ID Sovereign Country:</strong> ${u.id_country || '<span style="color:#ef4444;">NOT PROVIDED</span>'}</span>
+        <span style="display: block; margin-bottom: 8px; color: #94a3b8;"><strong style="color: #f1f5f9;">Account Entity Profile:</strong> ${u.full_name || 'Anonymous Platform Identifier'}</span>
+        <div style="background: #0f172a; padding: 16px; border-radius: 8px; margin-bottom: 16px; border: 1px dashed #475569;">
+            <span style="display: block; margin-bottom: 8px; color: #38bdf8; font-size: 1.05rem;"><strong style="color: #e0f2fe;">Formal Legal ID Name:</strong> ${u.id_name || '<span style="color:#f87171; font-weight:700;">NOT PROVIDED</span>'}</span>
+            <span style="display: block; color: #94a3b8;"><strong style="color: #e2e8f0;">Issuing ID Sovereign Country:</strong> ${u.id_country || '<span style="color:#f87171;">NOT PROVIDED</span>'}</span>
         </div>
-        <span style="display: block; margin-bottom: 8px;"><strong>Real Estate License:</strong> ${u.license_number || '<span style="color:#64748b; font-style:italic;">(Consumer Upload Exemption)</span>'}</span>
-        <span style="display: block; margin-bottom: 8px;"><strong>Brokerage Organization:</strong> ${u.brokerage_name || '<span style="color:#64748b; font-style:italic;">(Consumer Upload Exemption)</span>'}</span>
+        <span style="display: block; margin-bottom: 8px; color: #94a3b8;"><strong style="color: #f1f5f9;">Real Estate License:</strong> ${u.license_number || '<span style="color:#475569; font-style:italic;">(Consumer Upload Exemption)</span>'}</span>
+        <span style="display: block; margin-bottom: 8px; color: #94a3b8;"><strong style="color: #f1f5f9;">Brokerage Organization:</strong> ${u.brokerage_name || '<span style="color:#475569; font-style:italic;">(Consumer Upload Exemption)</span>'}</span>
     `;
     document.getElementById('reviewIdUrl').href = u.id_url || '#';
     
