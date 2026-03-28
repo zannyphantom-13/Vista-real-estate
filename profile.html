@@ -196,9 +196,15 @@
               </div>
           </div>
 
-          <div class="input-group" style="margin-top: 16px;">
-             <label for="idUpload">Government Issued ID (Driver's License or Passport)</label>
-             <input type="file" id="idUpload" required accept="image/*" style="width:100%; padding: 10px; background: #f8fafc; border: 1px dashed var(--border); border-radius: 8px; cursor: pointer;">
+          <div class="resp-grid-2" style="margin-top: 16px;">
+              <div class="input-group">
+                 <label for="idUploadFront">Government ID (Front)</label>
+                 <input type="file" id="idUploadFront" required accept="image/*" style="width:100%; padding: 10px; background: #f8fafc; border: 1px dashed var(--border); border-radius: 8px; cursor: pointer;">
+              </div>
+              <div class="input-group">
+                 <label for="idUploadBack">Government ID (Back)</label>
+                 <input type="file" id="idUploadBack" required accept="image/*" style="width:100%; padding: 10px; background: #f8fafc; border: 1px dashed var(--border); border-radius: 8px; cursor: pointer;">
+              </div>
           </div>
           
           <button type="submit" id="verifySubmitBtn" class="btn btn-primary w-full" style="margin-top: 32px;">Submit Verification File</button>

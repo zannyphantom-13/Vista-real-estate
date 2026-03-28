@@ -148,9 +148,13 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
 
                     // DYNAMIC TIERED UPLOAD BYPASS: Upgrading Sellers don't resubmit ID cards natively
                     if (userDoc.role === 'agent' && userDoc.id_url) {
-                        const idUploadGroup = document.getElementById('idUpload').parentElement;
-                        if(idUploadGroup) idUploadGroup.style.display = 'none';
-                        document.getElementById('idUpload').required = false;
+                        const idUploadGroupFront = document.getElementById('idUploadFront')?.parentElement;
+                        const idUploadGroupBack = document.getElementById('idUploadBack')?.parentElement;
+                        if(idUploadGroupFront) idUploadGroupFront.style.display = 'none';
+                        if(idUploadGroupBack) idUploadGroupBack.style.display = 'none';
+                        
+                        document.getElementById('idUploadFront').required = false;
+                        document.getElementById('idUploadBack').required = false;
                         
                         const titleEl = document.querySelector('#unverifiedPortal h2');
                         const pEl = document.querySelector('#unverifiedPortal p');
@@ -256,31 +260,48 @@ if (verifyForm) {
     verifyForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('verifySubmitBtn');
-        const idInput = document.getElementById('idUpload');
-        const file = idInput.files[0];
+        const idInputFront = document.getElementById('idUploadFront');
+        const idInputBack = document.getElementById('idUploadBack');
+        const fileFront = idInputFront.files[0];
+        const fileBack = idInputBack.files[0];
         
         // Block explicitly only if the input demands a payload rigidly
-        if (!file && idInput.required) return;
+        if ((!fileFront || !fileBack) && idInputFront.required) return;
 
         btn.textContent = 'Encrypting & Submitting Credentials...';
         btn.disabled = true;
 
         try {
-            let secureUrl = null;
+            let secureUrlFront = null;
+            let secureUrlBack = null;
             
-            // Bypass Cloudinary payload constraint if file was optionally structurally omitted
-            if (file) {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+            // Bypass Cloudinary payload constraint if file was optionally structurally omitted natively
+            if (fileFront && fileBack) {
+                // Front Payload
+                const formDataFront = new FormData();
+                formDataFront.append('file', fileFront);
+                formDataFront.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
 
-                const cloudinaryRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-                    method: 'POST', body: formData
+                const cloudinaryResFront = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+                    method: 'POST', body: formDataFront
                 });
 
-                if (!cloudinaryRes.ok) throw new Error('Secure document vault structurally rejected the file payload.');
-                const data = await cloudinaryRes.json();
-                secureUrl = data.secure_url;
+                if (!cloudinaryResFront.ok) throw new Error('Secure document vault structurally rejected the Front ID payload.');
+                const dataFront = await cloudinaryResFront.json();
+                secureUrlFront = dataFront.secure_url;
+                
+                // Back Payload
+                const formDataBack = new FormData();
+                formDataBack.append('file', fileBack);
+                formDataBack.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+                const cloudinaryResBack = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+                    method: 'POST', body: formDataBack
+                });
+
+                if (!cloudinaryResBack.ok) throw new Error('Secure document vault structurally rejected the Back ID payload.');
+                const dataBack = await cloudinaryResBack.json();
+                secureUrlBack = dataBack.secure_url;
             }
 
             const { data: { session } } = await supabase.auth.getSession();
@@ -293,8 +314,9 @@ if (verifyForm) {
                 brokerage_name: document.getElementById('brokerageName') ? document.getElementById('brokerageName').value.trim() : null
             };
             
-            if (secureUrl) {
-                payload.id_url = secureUrl;
+            if (secureUrlFront && secureUrlBack) {
+                // Dynamically pipe delimit to forcefully prevent strict Postgres migrations structurally natively
+                payload.id_url = secureUrlFront + '|' + secureUrlBack;
             }
 
             const { error } = await supabase.from('users').update(payload).eq('id', session.user.id);
