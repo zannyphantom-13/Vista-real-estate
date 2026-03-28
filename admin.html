@@ -29,8 +29,11 @@
     thead th { background: #0f172a !important; color: #94a3b8 !important; border-bottom: 1px solid #334155 !important; }
     tbody tr { border-bottom: 1px solid #334155 !important; }
     tbody td { color: #e2e8f0 !important; }
-    .btn-secondary { color: #f8fafc; border-color: #475569; }
-    .btn-secondary:hover { background: #334155; }
+    tbody td { color: #e2e8f0 !important; }
+    .btn-ghost { color: #94a3b8 !important; }
+    .btn-ghost:hover { background: #334155 !important; color: #f8fafc !important; }
+    .btn-danger-ghost { color: #f87171 !important; }
+    .btn-danger-ghost:hover { background: rgba(239, 68, 68, 0.1) !important; }
   </style>
 </head>
 <body class="bg-color" style="display: none;" id="adminBody">
@@ -43,8 +46,8 @@
       </a>
       <div class="nav-actions">
         <!-- Optional conditional switch to owner mode if they also want to upload -->
-        <a href="index.html" class="btn btn-secondary hide-mobile-text" style="border: none; margin-right: 8px;"><i class="ph ph-magnifying-glass" style="margin-right: 8px;"></i> <span>Back to Search</span></a>
-        <button id="logoutBtn" class="btn btn-secondary hide-mobile-text"><i class="ph ph-sign-out" style="margin-right: 8px;"></i> <span>Log Out</span></button>
+        <a href="index.html" class="btn btn-ghost hide-mobile-text" style="border: none; margin-right: 8px;"><i class="ph ph-magnifying-glass" style="margin-right: 8px;"></i> <span>Back to Search</span></a>
+        <button id="logoutBtn" class="btn btn-danger-ghost hide-mobile-text"><i class="ph ph-sign-out" style="margin-right: 8px;"></i> <span>Log Out</span></button>
       </div>
     </div>
   </nav>

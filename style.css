@@ -45,6 +45,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
 .btn-secondary { background: white; color: var(--secondary); border: 1px solid var(--border); }
 .btn-secondary:hover { background: #f1f5f9; }
+.btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid transparent; }
+.btn-ghost:hover { background: #f1f5f9; color: var(--secondary); }
+.btn-danger-ghost { background: transparent; color: #ef4444; border: 1px solid transparent; }
+.btn-danger-ghost:hover { background: #fef2f2; }
 .w-full { width: 100%; }
 
 /* ===== NAVBAR ===== */
