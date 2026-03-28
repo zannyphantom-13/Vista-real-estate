@@ -2,6 +2,7 @@
 
 let isSignUpMode = false;
 let pendingUser = null;
+let isAuthProcessed = false;
 
 // DOM Elements
 const authTitle = document.getElementById('authTitle');
@@ -153,6 +154,9 @@ profileForm.addEventListener('submit', async (e) => {
 
 // Handle Auth Success / Routing
 async function handleSuccessfulAuth(user, explicitData = null) {
+    if (isAuthProcessed) return;
+    isAuthProcessed = true;
+
     try {
         // Did they use the email form to explicitly provide sign up data just now?
         if (explicitData) {
@@ -181,6 +185,7 @@ async function handleSuccessfulAuth(user, explicitData = null) {
         console.error('Handling auth data error:', error);
         alert('CRASH LOG: ' + (error.message || JSON.stringify(error)));
         showToast('System Error: ' + error.message, 'error');
+        isAuthProcessed = false;
     }
 }
 
