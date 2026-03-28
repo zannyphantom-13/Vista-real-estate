@@ -8,6 +8,7 @@ let currentFilters = {
   minPrice: 0,
   maxPrice: Infinity,
   types: [],      // array of selected types
+  listedBy: [],   // array of selected roles
   beds: 'any',
   baths: 'any',
   sortBy: 'newest'
@@ -25,6 +26,7 @@ const searchInput = document.getElementById('searchInput');
 const minPriceInput = document.getElementById('minPrice');
 const maxPriceInput = document.getElementById('maxPrice');
 const typeCheckboxes = document.querySelectorAll('input[name="type"]');
+const listedByCheckboxes = document.querySelectorAll('input[name="listedBy"]');
 const bedsFilter = document.getElementById('bedsFilter');
 const bathsFilter = document.getElementById('bathsFilter');
 const sortFilter = document.getElementById('sortFilter');
@@ -71,6 +73,12 @@ function renderListings() {
     
     // Type
     if (currentFilters.types.length > 0 && !currentFilters.types.includes(p.type)) return false;
+    
+    // Listed By
+    if (currentFilters.listedBy.length > 0) {
+      let mappedRole = p.agent_role === 'agent' ? 'agent' : 'seller';
+      if (!currentFilters.listedBy.includes(mappedRole)) return false;
+    }
     
     // Beds
     if (currentFilters.beds !== 'any' && p.beds < parseInt(currentFilters.beds)) return false;
@@ -179,6 +187,7 @@ function updateActiveFilterTags() {
     createTag(text, 'price');
   }
   if (currentFilters.types.length > 0) createTag(`${currentFilters.types.length} Home Types`, 'types');
+  if (currentFilters.listedBy.length > 0) createTag(`Listed By: ${currentFilters.listedBy.map(v => v === 'agent' ? 'Agent' : 'Owner').join(', ')}`, 'listedBy');
   if (currentFilters.beds !== 'any') createTag(`${currentFilters.beds}+ Beds`, 'beds');
   if (currentFilters.baths !== 'any') createTag(`${currentFilters.baths}+ Baths`, 'baths');
 }
@@ -194,6 +203,7 @@ window.removeFilter = function(key) {
   if (key === 'search') { currentFilters.search = ''; searchInput.value = ''; }
   if (key === 'price') { currentFilters.minPrice = 0; currentFilters.maxPrice = Infinity; minPriceInput.value = ''; maxPriceInput.value = ''; }
   if (key === 'types') { currentFilters.types = []; typeCheckboxes.forEach(cb => cb.checked = false); }
+  if (key === 'listedBy') { currentFilters.listedBy = []; listedByCheckboxes.forEach(cb => cb.checked = false); }
   if (key === 'beds') { currentFilters.beds = 'any'; bedsFilter.value = 'any'; }
   if (key === 'baths') { currentFilters.baths = 'any'; bathsFilter.value = 'any'; }
   renderListings();
@@ -234,6 +244,7 @@ applyFiltersBtn.addEventListener('click', () => {
   currentFilters.maxPrice = maxPriceInput.value ? parseInt(maxPriceInput.value) : Infinity;
   
   currentFilters.types = Array.from(typeCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+  currentFilters.listedBy = Array.from(listedByCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
   currentFilters.beds = bedsFilter.value;
   currentFilters.baths = bathsFilter.value;
   
@@ -249,6 +260,7 @@ clearFiltersBtn.addEventListener('click', () => {
   minPriceInput.value = '';
   maxPriceInput.value = '';
   typeCheckboxes.forEach(cb => cb.checked = false);
+  listedByCheckboxes.forEach(cb => cb.checked = false);
   bedsFilter.value = 'any';
   bathsFilter.value = 'any';
   
@@ -257,6 +269,7 @@ clearFiltersBtn.addEventListener('click', () => {
     minPrice: 0,
     maxPrice: Infinity,
     types: [],
+    listedBy: [],
     beds: 'any',
     baths: 'any'
   };
