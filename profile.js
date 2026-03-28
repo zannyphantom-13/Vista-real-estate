@@ -90,6 +90,16 @@ supabase.auth.getSession().then(async ({ data: { session } }) => {
         if (userDoc.role === 'agent' || userDoc.role === 'seller') {
             if (userDoc.is_approved === true) {
                 uploadPortal.style.display = 'block';
+                
+                // Inject the Explicit Tiered Visual Verification Badges directly linked logically natively
+                const badgeContainer = document.getElementById('verificationBadges');
+                if (badgeContainer) {
+                    if (userDoc.role === 'seller') {
+                        badgeContainer.innerHTML = `<i class="ph-fill ph-seal-check" style="color: #3b82f6;" title="Verified Identity"></i>`;
+                    } else if (userDoc.role === 'agent') {
+                        badgeContainer.innerHTML = `<i class="ph-fill ph-seal-check" style="color: #3b82f6;" title="Verified Identity"></i><i class="ph-fill ph-seal-check" style="color: #f59e0b;" title="Verified Real Estate License"></i>`;
+                    }
+                }
             } else {
                 // Determine verification phase
                 const vStatus = userDoc.verification_status || 'unsubmitted';
