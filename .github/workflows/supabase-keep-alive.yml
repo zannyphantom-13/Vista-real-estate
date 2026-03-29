@@ -14,7 +14,5 @@ jobs:
       - name: Hit Supabase REST API
         run: |
           echo "Waking up Supabase instance..."
-          curl -s -X GET "https://yttkrvducgxvfoousblw.supabase.co/rest/v1/properties?limit=1" \
-            -H "apikey: sb_publishable_ZU4pS-xH46wzwPESHEjY9A_VO3bKPjA" \
-            -H "Authorization: Bearer sb_publishable_ZU4pS-xH46wzwPESHEjY9A_VO3bKPjA"
+          curl -s -X GET "https://yttkrvducgxvfoousblw.supabase.co/rest/v1/properties?limit=1" -H "apikey: sb_publishable_ZU4pS-xH46wzwPESHEjY9A_VO3bKPjA" -H "Authorization: Bearer sb_publishable_ZU4pS-xH46wzwPESHEjY9A_VO3bKPjA"
           echo "Ping completed natively!"
